@@ -33,7 +33,7 @@ export const bookType = defineType({
     
     defineField({
       name: 'price',
-      title: 'Preț (RON)',
+      title: 'Preț de Bază (Paperback - RON)', // Acesta va fi X
       type: 'number',
       validation: (Rule) => Rule.required().min(0),
     }),
@@ -61,6 +61,22 @@ export const bookType = defineType({
           lists: [{title: 'Bullet', value: 'bullet'}],
         }),
       ],
+    }),
+    defineField({
+      name: 'format',
+      title: 'Format Disponibil',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        list: [
+          { title: 'Paperback (Fizică)', value: 'paperback' },
+          { title: 'Hardback (Copertă dură)', value: 'hardback' },
+          { title: 'Ebook (Digital)', value: 'ebook' },
+          { title: 'Audiobook', value: 'audiobook' },
+        ],
+        layout: 'grid' // Arată mai elegant în Studio
+      },
+      validation: (Rule) => Rule.required().min(1).error('Selectează cel puțin un format.'),
     }),
     defineField({
       name: 'rating',
