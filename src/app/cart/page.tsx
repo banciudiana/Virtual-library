@@ -5,20 +5,57 @@ import { urlFor } from '@/lib/image';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Trash2, Plus, Minus, ArrowRight, ShoppingBag } from 'lucide-react';
+import { useState } from 'react';
 
 export default function CartPage() {
   const { cart, addToCart, reduceQuantity, removeFromCart, clearCart } = useCartStore();
-  const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const [isProcessing, setIsProcessing] = useState(false);
 
+  // Calcule
+  const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const isAllDigital = cart.every(item => 
     item.format?.toLowerCase() === 'ebook' || 
     item.format?.toLowerCase() === 'audiobook'
   );
 
-  
   const shipping = isAllDigital ? 5 : (subtotal > 150 ? 0 : 20);
-  
   const total = subtotal + shipping;
+
+  const handleCheckout = async () => {
+    setIsProcessing(true);
+    
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          cartItems: cart, 
+          shippingFee: shipping 
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        alert("Eroare la checkout: " + data.error);
+        setIsProcessing(false);
+        return;
+      }
+
+      // REDIRECȚIONARE MODERNA: Folosim URL-ul primit de la Stripe
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("Eroare: Nu s-a putut genera link-ul de plată.");
+        setIsProcessing(false);
+      }
+
+    } catch (err) {
+      console.error("Checkout error:", err);
+      setIsProcessing(false);
+      alert("A apărut o eroare neprevăzută.");
+    }
+  };
 
   if (cart.length === 0) {
     return (
@@ -54,7 +91,6 @@ export default function CartPage() {
         <div className="lg:col-span-8 space-y-10">
           {cart.map((item) => (
             <div key={item._id} className="flex flex-col sm:flex-row gap-8 pb-10 border-b border-zinc-200 items-start sm:items-center">
-              {/* Imagine */}
               <div className="relative w-28 h-40 bg-zinc-100 flex-shrink-0 shadow-md">
                 <Image 
                   src={urlFor(item.image).url()} 
@@ -64,7 +100,6 @@ export default function CartPage() {
                 />
               </div>
 
-              {/* Detalii */}
               <div className="flex-grow space-y-2">
                 <h3 className="font-playfair text-2xl font-bold text-zinc-900 leading-tight">
                   {item.title}
@@ -75,7 +110,6 @@ export default function CartPage() {
                 <p className="text-lg font-bold text-zinc-900 pt-2">{item.price} RON</p>
               </div>
 
-              {/* Cantitate & Ștergere */}
               <div className="flex items-center gap-8 w-full sm:w-auto justify-between sm:justify-end">
                 <div className="flex items-center border-2 border-zinc-900">
                   <button 
@@ -85,11 +119,9 @@ export default function CartPage() {
                   >
                     <Minus size={16} strokeWidth={3} />
                   </button>
-                  
                   <span className="px-5 text-sm font-black text-zinc-900 min-w-[45px] text-center">
                     {item.quantity}
                   </span>
-                  
                   <button 
                     onClick={() => addToCart(item)}
                     className="p-3 hover:bg-zinc-100 text-zinc-900 transition"
@@ -101,7 +133,6 @@ export default function CartPage() {
                 <button 
                   onClick={() => removeFromCart(item._id)}
                   className="text-zinc-400 hover:text-red-600 transition-colors p-2"
-                  title="Elimină produsul"
                 >
                   <Trash2 size={22} strokeWidth={1.5} />
                 </button>
@@ -119,7 +150,7 @@ export default function CartPage() {
 
         {/* REZUMAT COMANDĂ */}
         <div className="lg:col-span-4">
-          <div className="bg-zinc-50 p-10 sticky top-32 border border-zinc-100">
+          <div className="bg-zinc-50 p-10 sticky top-32 border border-zinc-100 shadow-sm">
             <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-900 mb-10 border-b-2 border-zinc-900 pb-4">
               Sumar comandă
             </h2>
@@ -130,16 +161,16 @@ export default function CartPage() {
                 <span className="font-bold text-zinc-900">{subtotal} RON</span>
               </div>
               <div className="flex justify-between text-zinc-700 font-medium">
-                <span>Cost livrare</span>
+                <span>{isAllDigital ? 'Taxă procesare' : 'Cost livrare'}</span>
                 <span className="font-bold text-zinc-900">
                   {shipping === 0 ? 'GRATUIT' : `${shipping} RON`}
                 </span>
               </div>
               
-              {shipping > 0 && (
+              {!isAllDigital && shipping > 0 && (
                 <div className="bg-white p-4 border border-zinc-200 mt-4">
                   <p className="text-[10px] text-zinc-800 font-bold uppercase tracking-tight">
-                    Transport Gratuit?
+                    Transport gratuit?
                   </p>
                   <p className="text-[11px] text-zinc-500 italic mt-1 leading-relaxed">
                     Mai adaugă produse de <span className="text-zinc-900 font-bold">{150 - subtotal} RON</span> pentru livrare gratuită.
@@ -153,14 +184,18 @@ export default function CartPage() {
               </div>
             </div>
 
-            <button className="w-full bg-zinc-900 text-white py-6 mt-12 flex items-center justify-center space-x-4 hover:bg-black transition-all uppercase tracking-[0.3em] font-bold text-[11px] shadow-2xl active:scale-[0.98]">
-              <span>Finalizează Comanda</span>
-              <ArrowRight size={18} />
+            <button 
+              onClick={handleCheckout}
+              disabled={isProcessing}
+              className={`w-full bg-zinc-900 text-white py-6 mt-12 flex items-center justify-center space-x-4 hover:bg-black uppercase tracking-[0.3em] font-bold text-[11px] shadow-2xl active:scale-[0.98] transition-all ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <span>{isProcessing ? 'Se procesează...' : 'Finalizează Comanda'}</span>
+              {!isProcessing && <ArrowRight size={18} />}
             </button>
             
             <div className="mt-10 space-y-3 text-[10px] text-zinc-500 uppercase tracking-[0.15em] font-bold text-center">
-              <p className="flex items-center justify-center gap-2">🛡️ Plată 100% securizată</p>
-              <p className="flex items-center justify-center gap-2 italic text-zinc-400 font-medium normal-case">Retur simplu în 14 zile calendaristice</p>
+              <p>🛡️ Plată 100% securizată prin Stripe</p>
+              <p className="italic text-zinc-400 font-medium normal-case">Suport GPay & Apple Pay activ</p>
             </div>
           </div>
         </div>
