@@ -58,9 +58,14 @@ export default function Navbar() {
             <button className="p-2 hover:bg-zinc-50 rounded-full transition hidden sm:block text-zinc-700">
               <Search size={20} strokeWidth={1.2} />
             </button>
-            <Link href="/login" className="p-2 hover:bg-zinc-50 rounded-full transition text-zinc-700">
-              <User size={20} strokeWidth={1.2} />
-            </Link>
+          
+              {/* Verificăm dacă avem un user în store sau session (simulat momentan) */}
+              <Link 
+                href={mounted && localStorage.getItem('userEmail') ? "/account" : "/login"} 
+                className="p-2 hover:bg-zinc-50 rounded-full transition text-zinc-700"
+              >
+                <User size={20} strokeWidth={1.2} />
+              </Link>
             <Link href="/cart" className="p-2 hover:bg-zinc-50 rounded-full transition relative text-zinc-700">
               <ShoppingBag size={20} strokeWidth={1.2} />
               

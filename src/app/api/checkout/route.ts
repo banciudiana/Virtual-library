@@ -3,9 +3,10 @@ import { stripe } from "@/lib/stripe-server";
 
 export async function POST(req: Request) {
   try {
-    const { cartItems, shippingFee } = await req.json();
+    // Am adăugat userEmail în destructuring
+    const { cartItems, shippingFee, userEmail } = await req.json();
 
-    // 1. Transformăm produsele tale în formatul Stripe
+    // 1. Transformăm produsele pentru Stripe
     const line_items = cartItems.map((item: any) => ({
       price_data: {
         currency: "ron",
@@ -17,7 +18,7 @@ export async function POST(req: Request) {
       quantity: item.quantity,
     }));
 
-    // 2. Adăugăm taxa de transport/procesare (5 sau 20 lei)
+    // 2. Adăugăm taxa de transport/procesare
     if (shippingFee > 0) {
       line_items.push({
         price_data: {
@@ -31,18 +32,31 @@ export async function POST(req: Request) {
       });
     }
 
-    // 3. Creăm sesiunea de plată
-    // IMPORTANT: Am păstrat "card", dar Stripe va afișa GPay automat dacă e activat în Dashboard
+    // 3. Pregătim datele pentru scăderea stocului (doar produsele fizice)
+    const physicalItemsMetadata = cartItems
+      .filter((item: any) => item.format === 'paperback' || item.format === 'hardback')
+      .map((item: any) => ({
+        id: item._id.split('-')[0],
+        qty: item.quantity
+      }));
+
+    // 4. Creăm sesiunea de plată cu METADATA completă
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items,
       mode: "payment",
-      // Stripe completează automat {CHECKOUT_SESSION_ID} la redirecționare
+      // Adăugăm email-ul clientului direct în Stripe pentru a-l vedea și în Dashboard
+      customer_email: userEmail, 
       success_url: `${req.headers.get("origin")}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/cart`,
+      
+      metadata: {
+        // Aceste date vor fi citite în pagina de /success
+        order_data: JSON.stringify(physicalItemsMetadata),
+        user_email: userEmail // Foarte important pentru corelare!
+      },
     });
 
-    // MODIFICARE CRUCIALĂ: Returnăm session.url în loc de sessionId
     return NextResponse.json({ url: session.url });
 
   } catch (err: any) {

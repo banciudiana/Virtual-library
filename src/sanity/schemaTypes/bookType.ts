@@ -79,6 +79,22 @@ export const bookType = defineType({
       validation: (Rule) => Rule.required().min(1).error('Selectează cel puțin un format.'),
     }),
     defineField({
+      name: 'stock',
+      title: 'Stoc (Produse Fizice)',
+      type: 'number',
+      description: 'Câte exemplare fizice sunt disponibile.',
+      // Logica: Ascundem stocul dacă e doar digital
+      hidden: ({document}) => {
+      const formats = document?.format as string[] | undefined;
+      if (!formats) return false;
+      // Dacă am selectat DOAR formate digitale, ascundem câmpul de stoc
+      const hasPhysical = formats.some(f => f === 'paperback' || f === 'hardback');
+      return !hasPhysical;
+      },
+      validation: (Rule) => Rule.min(0).error('Stocul nu poate fi negativ'),
+      initialValue: 0,
+    }),
+    defineField({
       name: 'rating',
       title: 'Rating (1-5)',
       type: 'number',

@@ -17,6 +17,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     longDescription,
     rating,
     image,
+    stock,
     "authorName": author->name,
     "authorSlug": author->slug.current,
     "authorShortBio": author->shortBio,

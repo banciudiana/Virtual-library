@@ -22,40 +22,49 @@ export default function CartPage() {
   const total = subtotal + shipping;
 
   const handleCheckout = async () => {
-    setIsProcessing(true);
-    
-    try {
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          cartItems: cart, 
-          shippingFee: shipping 
-        }),
-      });
+  // 1. Verificăm dacă user-ul este logat
+  const userEmail = localStorage.getItem('userEmail');
+  
+  if (!userEmail) {
+    alert("Te rugăm să te loghezi pentru a finaliza comanda.");
+    window.location.href = "/login";
+    return;
+  }
 
-      const data = await response.json();
+  setIsProcessing(true);
+  
+  try {
+    const response = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ 
+        cartItems: cart, 
+        shippingFee: shipping,
+        userEmail: userEmail // Trimitem email-ul pentru a-l stoca în metadata Stripe
+      }),
+    });
 
-      if (data.error) {
-        alert("Eroare la checkout: " + data.error);
-        setIsProcessing(false);
-        return;
-      }
+    const data = await response.json();
 
-      // REDIRECȚIONARE MODERNA: Folosim URL-ul primit de la Stripe
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        alert("Eroare: Nu s-a putut genera link-ul de plată.");
-        setIsProcessing(false);
-      }
-
-    } catch (err) {
-      console.error("Checkout error:", err);
+    if (data.error) {
+      alert("Eroare la checkout: " + data.error);
       setIsProcessing(false);
-      alert("A apărut o eroare neprevăzută.");
+      return;
     }
-  };
+
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert("Eroare: Nu s-a putut genera link-ul de plată.");
+      setIsProcessing(false);
+    }
+
+  } catch (err) {
+    console.error("Checkout error:", err);
+    setIsProcessing(false);
+    alert("A apărut o eroare neprevăzută.");
+  }
+};
 
   if (cart.length === 0) {
     return (

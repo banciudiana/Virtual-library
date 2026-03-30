@@ -5,8 +5,8 @@ import {categoryType} from './categoryType'
 import {authorType} from './authorType'
 import {bookType} from './bookType'
 import {userType} from './userType'
-
+import {orderType} from './orderType'
 
 export const schema: { types: SchemaTypeDefinition[] } = {
-  types: [ authorType,bookType, categoryType,userType],
+  types: [ authorType,bookType, categoryType,userType,orderType],
 }
