@@ -7,10 +7,17 @@ import Link from 'next/link';
 import { Trash2, Plus, Minus, ArrowRight, ShoppingBag } from 'lucide-react';
 
 export default function CartPage() {
-  const { cart, addToCart, removeFromCart, clearCart } = useCartStore();
-
+  const { cart, addToCart, reduceQuantity, removeFromCart, clearCart } = useCartStore();
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const shipping = subtotal > 150 ? 0 : 20;
+
+  const isAllDigital = cart.every(item => 
+    item.format?.toLowerCase() === 'ebook' || 
+    item.format?.toLowerCase() === 'audiobook'
+  );
+
+  
+  const shipping = isAllDigital ? 5 : (subtotal > 150 ? 0 : 20);
+  
   const total = subtotal + shipping;
 
   if (cart.length === 0) {
@@ -28,7 +35,7 @@ export default function CartPage() {
             href="/" 
             className="mt-8 px-14 py-5 bg-zinc-900 text-white text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-black transition-all shadow-xl"
           >
-            Explorează Cărțile
+            Explorează cărțile
           </Link>
         </div>
       </main>
@@ -38,7 +45,7 @@ export default function CartPage() {
   return (
     <main className="max-w-7xl mx-auto px-6 py-12 md:py-20 font-sans">
       <h1 className="font-playfair text-4xl md:text-5xl font-bold mb-16 tracking-tight text-zinc-900">
-        Coș de Cumpărături
+        Coș de cumpărături
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
@@ -46,7 +53,7 @@ export default function CartPage() {
         {/* LISTA PRODUSE */}
         <div className="lg:col-span-8 space-y-10">
           {cart.map((item) => (
-            <div key={item._id} className="flex flex-col sm:row gap-8 pb-10 border-b border-zinc-200 items-start sm:flex-row sm:items-center">
+            <div key={item._id} className="flex flex-col sm:flex-row gap-8 pb-10 border-b border-zinc-200 items-start sm:items-center">
               {/* Imagine */}
               <div className="relative w-28 h-40 bg-zinc-100 flex-shrink-0 shadow-md">
                 <Image 
@@ -57,10 +64,10 @@ export default function CartPage() {
                 />
               </div>
 
-              {/* Detalii - Text mult mai vizibil */}
+              {/* Detalii */}
               <div className="flex-grow space-y-2">
                 <h3 className="font-playfair text-2xl font-bold text-zinc-900 leading-tight">
-                    {item.title}
+                  {item.title}
                 </h3>
                 <p className="text-[11px] uppercase tracking-[0.2em] text-zinc-900 font-black">
                   Format: <span className="bg-zinc-100 px-2 py-0.5 rounded-sm ml-1">{item.format}</span>
@@ -71,12 +78,23 @@ export default function CartPage() {
               {/* Cantitate & Ștergere */}
               <div className="flex items-center gap-8 w-full sm:w-auto justify-between sm:justify-end">
                 <div className="flex items-center border-2 border-zinc-900">
-                  <button className="p-3 hover:bg-zinc-100 text-zinc-900 transition">
-                    <Minus size={16} strokeWidth={2.5} />
+                  <button 
+                    onClick={() => reduceQuantity(item._id)}
+                    className="p-3 hover:bg-zinc-100 text-zinc-900 transition disabled:opacity-30"
+                    disabled={item.quantity <= 1}
+                  >
+                    <Minus size={16} strokeWidth={3} />
                   </button>
-                  <span className="px-5 text-sm font-black text-zinc-900">{item.quantity}</span>
-                  <button className="p-3 hover:bg-zinc-100 text-zinc-900 transition">
-                    <Plus size={16} strokeWidth={2.5} />
+                  
+                  <span className="px-5 text-sm font-black text-zinc-900 min-w-[45px] text-center">
+                    {item.quantity}
+                  </span>
+                  
+                  <button 
+                    onClick={() => addToCart(item)}
+                    className="p-3 hover:bg-zinc-100 text-zinc-900 transition"
+                  >
+                    <Plus size={16} strokeWidth={3} />
                   </button>
                 </div>
                 
@@ -99,11 +117,11 @@ export default function CartPage() {
           </button>
         </div>
 
-        {/* REZUMAT COMANDĂ - Contrast ridicat */}
+        {/* REZUMAT COMANDĂ */}
         <div className="lg:col-span-4">
           <div className="bg-zinc-50 p-10 sticky top-32 border border-zinc-100">
             <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-900 mb-10 border-b-2 border-zinc-900 pb-4">
-              Sumar Comandă
+              Sumar comandă
             </h2>
             
             <div className="space-y-5 font-sans text-[13px]">
@@ -112,20 +130,20 @@ export default function CartPage() {
                 <span className="font-bold text-zinc-900">{subtotal} RON</span>
               </div>
               <div className="flex justify-between text-zinc-700 font-medium">
-                <span>Cost Livrare</span>
+                <span>Cost livrare</span>
                 <span className="font-bold text-zinc-900">
-                    {shipping === 0 ? 'GRATUIT' : `${shipping} RON`}
+                  {shipping === 0 ? 'GRATUIT' : `${shipping} RON`}
                 </span>
               </div>
               
               {shipping > 0 && (
                 <div className="bg-white p-4 border border-zinc-200 mt-4">
-                    <p className="text-[10px] text-zinc-800 font-bold uppercase tracking-tight">
-                        Transport Gratuit?
-                    </p>
-                    <p className="text-[11px] text-zinc-500 italic mt-1 leading-relaxed">
-                        Mai adaugă produse de <span className="text-zinc-900 font-bold">{150 - subtotal} RON</span> pentru livrare gratuită.
-                    </p>
+                  <p className="text-[10px] text-zinc-800 font-bold uppercase tracking-tight">
+                    Transport Gratuit?
+                  </p>
+                  <p className="text-[11px] text-zinc-500 italic mt-1 leading-relaxed">
+                    Mai adaugă produse de <span className="text-zinc-900 font-bold">{150 - subtotal} RON</span> pentru livrare gratuită.
+                  </p>
                 </div>
               )}
 
@@ -141,8 +159,8 @@ export default function CartPage() {
             </button>
             
             <div className="mt-10 space-y-3 text-[10px] text-zinc-500 uppercase tracking-[0.15em] font-bold text-center">
-               <p className="flex items-center justify-center gap-2">🛡️ Plată 100% securizată</p>
-               <p className="flex items-center justify-center gap-2 italic text-zinc-400 font-medium normal-case">Retur simplu în 14 zile calendaristice</p>
+              <p className="flex items-center justify-center gap-2">🛡️ Plată 100% securizată</p>
+              <p className="flex items-center justify-center gap-2 italic text-zinc-400 font-medium normal-case">Retur simplu în 14 zile calendaristice</p>
             </div>
           </div>
         </div>

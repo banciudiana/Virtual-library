@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // Am adăugat useEffect
 import Link from 'next/link';
 import { useCartStore } from '@/lib/store';
 import { ShoppingBag, User, Search, Menu, X, ChevronRight, ArrowLeft } from 'lucide-react';
@@ -8,13 +8,19 @@ import { ShoppingBag, User, Search, Menu, X, ChevronRight, ArrowLeft } from 'luc
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
+  
+  // SOLUȚIE HYDRATION: Adăugăm o stare pentru a verifica dacă suntem pe client
+  const [mounted, setMounted] = useState(false);
+  const totalItems = useCartStore((state) => state.totalItems());
 
-  // Acestea vor veni ulterior din categoryType (Sanity)
-  // Momentan le listăm simplu, stratificat în meniu
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const categoriiExemplu = [
     "Ficțiune", "Dezvoltare Personală", "Istorie", "Artă & Design", "Psihologie", "Copii"
   ];
-   const totalItems = useCartStore((state) => state.totalItems());
+
   return (
     <nav className="border-b border-zinc-100 bg-white sticky top-0 z-50 overflow-x-hidden font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -40,7 +46,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Navigație Desktop - Culori corectate pentru vizibilitate */}
+          {/* Navigație Desktop */}
           <div className="hidden md:flex space-x-10 items-center text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-800">
             <Link href="/categorii" className="hover:text-black transition-colors">Categorii</Link>
             <Link href="/noutati" className="hover:text-black transition-colors">Noutăți</Link>
@@ -57,22 +63,25 @@ export default function Navbar() {
             </Link>
             <Link href="/cart" className="p-2 hover:bg-zinc-50 rounded-full transition relative text-zinc-700">
               <ShoppingBag size={20} strokeWidth={1.2} />
-              <span className="absolute top-1 right-1 bg-black text-white text-[9px] w-3.5 h-3.5 flex items-center justify-center rounded-full font-bold">
-                {totalItems}
-              </span>
+              
+              {/* AFIȘARE CONDIȚIONATĂ: Randăm numărul doar după ce componenta s-a montat pe client */}
+              {mounted && totalItems > 0 && (
+                <span className="absolute top-1 right-1 bg-black text-white text-[9px] w-3.5 h-3.5 flex items-center justify-center rounded-full font-bold animate-in zoom-in duration-300">
+                  {totalItems}
+                </span>
+              )}
             </Link>
           </div>
         </div>
       </div>
 
+      {/* Restul meniului de mobil rămâne la fel... */}
       {/* Mobile Menu Overlay */}
       <div className={`
         fixed inset-0 top-16 bg-white z-40 transition-transform duration-300 ease-in-out md:hidden
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="relative h-full p-8 overflow-hidden">
-          
-          {/* Stratul 1: Meniul Principal */}
           <div className={`flex flex-col space-y-6 transition-all duration-300 ${showCategories ? '-translate-x-full opacity-0' : 'translate-x-0 opacity-100'}`}>
             <Link href="/search" onClick={() => setIsOpen(false)} className="flex items-center gap-2 pt-4 text-zinc-500 text-sm font-sans uppercase tracking-[0.2em] font-bold">
               <Search size={18} /> Caută o carte
@@ -89,7 +98,6 @@ export default function Navbar() {
             <Link href="/autori" onClick={() => setIsOpen(false)} className="border-b border-zinc-50 pb-4 font-playfair text-2xl font-medium">Autori</Link>
           </div>
 
-          {/* Stratul 2: Sub-meniul Categorii (Apare peste) */}
           <div className={`absolute inset-0 p-8 bg-white transition-all duration-300 ${showCategories ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
             <button 
               onClick={() => setShowCategories(false)}
@@ -112,7 +120,6 @@ export default function Navbar() {
               ))}
             </div>
           </div>
-
         </div>
       </div>
     </nav>
