@@ -3,8 +3,8 @@ import { urlFor } from '@/lib/image'
 import Image from 'next/image'
 import Link from 'next/link'
 import { PortableText } from '@portabletext/react'
-import { ArrowLeft } from 'lucide-react'
 import ProductDetailsClient from '@/components/ProductDetailClient'
+import BackButton from '@/components/BackButton';
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -31,10 +31,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   return (
     <main className="max-w-7xl mx-auto px-6 py-8 md:py-16">
       {/* Buton Înapoi */}
-      <Link href="/" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-zinc-400 hover:text-black transition-colors mb-12 group font-sans font-bold">
-        <ArrowLeft size={14} className="transition-transform group-hover:-translate-x-1" />
-        Înapoi
-      </Link>
+      <BackButton />
 
       {/* Grid-ul Principal (Imagine + Client Component pentru Detalii) */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-24 items-center mb-24">

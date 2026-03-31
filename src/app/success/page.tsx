@@ -62,10 +62,7 @@ export default function SuccessPage() {
           status: 'Plătit',
           items: cart.map(item => ({
             _key: Math.random().toString(36).substring(2, 9),
-            book: { 
-                _type: 'reference', 
-                _ref: getCleanId(item._id) // FOLOSIM FUNCȚIA NOUĂ
-            },
+           
             quantity: item.quantity,
             priceAtPurchase: item.price,
             format: item.format
