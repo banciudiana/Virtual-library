@@ -3,7 +3,6 @@ import { stripe } from "@/lib/stripe-server";
 
 export async function POST(req: Request) {
   try {
-    // Am adăugat userEmail în destructuring
     const { cartItems, shippingFee, userEmail } = await req.json();
 
     // 1. Transformăm produsele pentru Stripe
@@ -12,13 +11,16 @@ export async function POST(req: Request) {
         currency: "ron",
         product_data: { 
           name: `${item.title} (${item.format})`,
+          // REPARAȚIE: Am scos câmpul images sau am lăsat array gol. 
+          // Stripe refuză obiectele Sanity, vrea doar URL-uri string.
+          images: [], 
         },
         unit_amount: Math.round(item.price * 100), 
       },
       quantity: item.quantity,
     }));
 
-    // 2. Adăugăm taxa de transport/procesare
+    // 2. Taxa de transport
     if (shippingFee > 0) {
       line_items.push({
         price_data: {
@@ -32,28 +34,25 @@ export async function POST(req: Request) {
       });
     }
 
-    // 3. Pregătim datele pentru scăderea stocului (doar produsele fizice)
-    const physicalItemsMetadata = cartItems
-      .filter((item: any) => item.format === 'paperback' || item.format === 'hardback')
-      .map((item: any) => ({
-        id: item._id.split('-')[0],
-        qty: item.quantity
-      }));
+    // 3. Metadata minimalist pentru Sanity
+    const simplifiedItems = cartItems.map((item: any) => ({
+      id: item._id.split('-')[0],
+      q: item.quantity,
+      p: item.price,
+      f: item.format
+    }));
 
-    // 4. Creăm sesiunea de plată cu METADATA completă
+    // 4. Crearea sesiunii
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items,
       mode: "payment",
-      // Adăugăm email-ul clientului direct în Stripe pentru a-l vedea și în Dashboard
       customer_email: userEmail, 
       success_url: `${req.headers.get("origin")}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/cart`,
-      
       metadata: {
-        // Aceste date vor fi citite în pagina de /success
-        order_data: JSON.stringify(physicalItemsMetadata),
-        user_email: userEmail // Foarte important pentru corelare!
+        cart_data: JSON.stringify(simplifiedItems),
+        user_email: userEmail 
       },
     });
 

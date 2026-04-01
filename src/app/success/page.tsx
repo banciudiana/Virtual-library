@@ -49,10 +49,10 @@ export default function SuccessPage() {
         const isAllDigital = cart.every(item => 
           item.format?.toLowerCase() === 'ebook' || item.format?.toLowerCase() === 'audiobook'
         );
-        const shipping = isAllDigital ? 5 : (subtotal > 150 ? 0 : 20);
+        const shipping = isAllDigital ? 0 : (subtotal > 150 ? 0 : 20); // Am corectat: 0 pt digital
         const total = subtotal + shipping;
 
-        // 3. Creăm comanda cu ID-ul curat
+        // 3. CREĂM COMANDA (REPARAT: Adăugat referința corectă către carte)
         const orderDoc = {
           _type: 'order',
           orderNumber: `ORD-${Math.random().toString(36).toUpperCase().substring(2, 9)}`,
@@ -62,7 +62,11 @@ export default function SuccessPage() {
           status: 'Plătit',
           items: cart.map(item => ({
             _key: Math.random().toString(36).substring(2, 9),
-           
+            // AICI ERA PROBLEMA: Trebuie să îi dăm referința book
+            book: {
+              _type: 'reference',
+              _ref: getCleanId(item._id) // Curățăm ID-ul (-ebook, etc)
+            },
             quantity: item.quantity,
             priceAtPurchase: item.price,
             format: item.format
@@ -71,23 +75,26 @@ export default function SuccessPage() {
 
         const createdOrder = await adminClient.create(orderDoc);
 
+        // 4. Legăm comanda de profilul utilizatorului
         await adminClient
           .patch(user._id)
           .setIfMissing({ orders: [] })
           .insert('after', 'orders[-1]', [{ _type: 'reference', _ref: createdOrder._id }])
           .commit();
 
-        // 5. Scădem stocul folosind ID-ul curat
+        // 5. UPDATE STOC ȘI SALES COUNT (Top Vânzări)
         for (const item of cart) {
+          const cleanId = getCleanId(item._id);
           const isPhysical = item.format === 'paperback' || item.format === 'hardback';
+          
+          // Patch de nota 20: Scădem stocul (dacă e fizic) ȘI creștem salesCount (pt toate)
+          let patch = adminClient.patch(cleanId).setIfMissing({ salesCount: 0 }).inc({ salesCount: item.quantity });
+          
           if (isPhysical) {
-            const cleanId = getCleanId(item._id); // FOLOSIM FUNCȚIA NOUĂ
-            
-            await adminClient
-              .patch(cleanId)
-              .dec({ stock: item.quantity })
-              .commit();
+            patch = patch.dec({ stock: item.quantity });
           }
+
+          await patch.commit();
         }
 
         clearCart();

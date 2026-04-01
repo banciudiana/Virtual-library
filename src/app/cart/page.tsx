@@ -8,63 +8,59 @@ import { Trash2, Plus, Minus, ArrowRight, ShoppingBag } from 'lucide-react';
 import { useState } from 'react';
 
 export default function CartPage() {
+  // Am extras funcțiile din store conform noii logici (id + format)
   const { cart, addToCart, reduceQuantity, removeFromCart, clearCart } = useCartStore();
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Calcule
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  
   const isAllDigital = cart.every(item => 
     item.format?.toLowerCase() === 'ebook' || 
     item.format?.toLowerCase() === 'audiobook'
   );
 
-  const shipping = isAllDigital ? 5 : (subtotal > 150 ? 0 : 20);
+  const shipping = isAllDigital ? 0 : (subtotal > 150 ? 0 : 20);
   const total = subtotal + shipping;
 
   const handleCheckout = async () => {
-  // 1. Verificăm dacă user-ul este logat
-  const userEmail = localStorage.getItem('userEmail');
-  
-  if (!userEmail) {
-    alert("Te rugăm să te loghezi pentru a finaliza comanda.");
-    window.location.href = "/login";
-    return;
-  }
-
-  setIsProcessing(true);
-  
-  try {
-    const response = await fetch("/api/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        cartItems: cart, 
-        shippingFee: shipping,
-        userEmail: userEmail // Trimitem email-ul pentru a-l stoca în metadata Stripe
-      }),
-    });
-
-    const data = await response.json();
-
-    if (data.error) {
-      alert("Eroare la checkout: " + data.error);
-      setIsProcessing(false);
+    const userEmail = localStorage.getItem('userEmail');
+    
+    if (!userEmail) {
+      alert("Te rugăm să te loghezi pentru a finaliza comanda.");
+      window.location.href = "/login";
       return;
     }
 
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      alert("Eroare: Nu s-a putut genera link-ul de plată.");
+    setIsProcessing(true);
+    
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          cartItems: cart, 
+          shippingFee: shipping,
+          userEmail: userEmail 
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        alert("Eroare la checkout: " + data.error);
+        setIsProcessing(false);
+        return;
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+
+    } catch (err) {
+      console.error("Checkout error:", err);
       setIsProcessing(false);
     }
-
-  } catch (err) {
-    console.error("Checkout error:", err);
-    setIsProcessing(false);
-    alert("A apărut o eroare neprevăzută.");
-  }
-};
+  };
 
   if (cart.length === 0) {
     return (
@@ -73,15 +69,15 @@ export default function CartPage() {
           <div className="p-8 bg-zinc-100 rounded-full text-zinc-900">
             <ShoppingBag size={48} strokeWidth={1} />
           </div>
-          <h1 className="font-playfair text-4xl font-bold text-zinc-900">Coșul tău este gol</h1>
-          <p className="text-zinc-600 font-medium italic max-w-xs mx-auto">
-            Biblioteca ta așteaptă prima poveste.
+          <h1 className="font-playfair text-4xl font-bold text-zinc-900 italic">Coșul tău este gol</h1>
+          <p className="text-zinc-400 font-medium italic max-w-xs mx-auto">
+            Biblioteca ta personală așteaptă prima poveste.
           </p>
           <Link 
             href="/" 
             className="mt-8 px-14 py-5 bg-zinc-900 text-white text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-black transition-all shadow-xl"
           >
-            Explorează cărțile
+            Explorează colecția
           </Link>
         </div>
       </main>
@@ -90,17 +86,30 @@ export default function CartPage() {
 
   return (
     <main className="max-w-7xl mx-auto px-6 py-12 md:py-20 font-sans">
-      <h1 className="font-playfair text-4xl md:text-5xl font-bold mb-16 tracking-tight text-zinc-900">
-        Coș de cumpărături
-      </h1>
+      <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
+        <div className="text-left">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 mb-2 italic text-left">Your Selection</p>
+          <h1 className="font-playfair text-5xl md:text-6xl font-bold tracking-tighter text-zinc-900 italic text-left">
+            Coș de cumpărături
+          </h1>
+        </div>
+        <button 
+          onClick={clearCart}
+          className="text-[9px] uppercase tracking-widest text-zinc-300 hover:text-red-600 font-bold transition-colors pb-2"
+        >
+          Golește tot coșul
+        </button>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-        
-        {/* LISTA PRODUSE */}
-        <div className="lg:col-span-8 space-y-10">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+        <div className="lg:col-span-8 space-y-8">
           {cart.map((item) => (
-            <div key={item._id} className="flex flex-col sm:flex-row gap-8 pb-10 border-b border-zinc-200 items-start sm:items-center">
-              <div className="relative w-28 h-40 bg-zinc-100 flex-shrink-0 shadow-md">
+            <div 
+              key={`${item._id}-${item.format}`} 
+              className="flex flex-col sm:flex-row gap-8 pb-8 border-b border-zinc-100 items-start sm:items-center group"
+            >
+              {/* Imagine */}
+              <div className="relative w-24 h-36 bg-zinc-50 flex-shrink-0 shadow-sm overflow-hidden group-hover:shadow-xl transition-shadow">
                 <Image 
                   src={urlFor(item.image).url()} 
                   alt={item.title} 
@@ -109,106 +118,96 @@ export default function CartPage() {
                 />
               </div>
 
-              <div className="flex-grow space-y-2">
+              {/* Info */}
+              <div className="flex-grow space-y-1 text-left">
                 <h3 className="font-playfair text-2xl font-bold text-zinc-900 leading-tight">
                   {item.title}
                 </h3>
-                <p className="text-[11px] uppercase tracking-[0.2em] text-zinc-900 font-black">
-                  Format: <span className="bg-zinc-100 px-2 py-0.5 rounded-sm ml-1">{item.format}</span>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-400 font-black italic">
+                  Format: <span className="text-zinc-900">{item.format}</span>
                 </p>
-                <p className="text-lg font-bold text-zinc-900 pt-2">{item.price} RON</p>
+                <p className="text-base font-black text-zinc-900 pt-3 italic">{item.price} RON</p>
               </div>
 
-              <div className="flex items-center gap-8 w-full sm:w-auto justify-between sm:justify-end">
-                <div className="flex items-center border-2 border-zinc-900">
+              {/* Controale - REPARATE CU ID + FORMAT */}
+              <div className="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end">
+                <div className="flex items-center border border-zinc-200 bg-white">
                   <button 
-                    onClick={() => reduceQuantity(item._id)}
-                    className="p-3 hover:bg-zinc-100 text-zinc-900 transition disabled:opacity-30"
+                    onClick={() => reduceQuantity(item._id, item.format)}
+                    className="p-3 hover:bg-zinc-50 text-zinc-900 transition disabled:opacity-20"
                     disabled={item.quantity <= 1}
                   >
-                    <Minus size={16} strokeWidth={3} />
+                    <Minus size={14} strokeWidth={2} />
                   </button>
-                  <span className="px-5 text-sm font-black text-zinc-900 min-w-[45px] text-center">
+                  <span className="px-4 text-[12px] font-black text-zinc-900 min-w-[35px] text-center">
                     {item.quantity}
                   </span>
                   <button 
                     onClick={() => addToCart(item)}
-                    className="p-3 hover:bg-zinc-100 text-zinc-900 transition"
+                    className="p-3 hover:bg-zinc-50 text-zinc-900 transition"
                   >
-                    <Plus size={16} strokeWidth={3} />
+                    <Plus size={14} strokeWidth={2} />
                   </button>
                 </div>
                 
                 <button 
-                  onClick={() => removeFromCart(item._id)}
-                  className="text-zinc-400 hover:text-red-600 transition-colors p-2"
+                  onClick={() => removeFromCart(item._id, item.format)}
+                  className="text-zinc-200 hover:text-red-600 transition-colors p-2"
                 >
-                  <Trash2 size={22} strokeWidth={1.5} />
+                  <Trash2 size={20} strokeWidth={1.5} />
                 </button>
               </div>
             </div>
           ))}
-          
-          <button 
-            onClick={clearCart}
-            className="text-[10px] uppercase tracking-widest text-zinc-500 hover:text-red-600 font-bold transition-colors underline underline-offset-4"
-          >
-            Golește complet coșul
-          </button>
         </div>
 
-        {/* REZUMAT COMANDĂ */}
+        {/* Rezumat Comandă */}
         <div className="lg:col-span-4">
-          <div className="bg-zinc-50 p-10 sticky top-32 border border-zinc-100 shadow-sm">
-            <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-900 mb-10 border-b-2 border-zinc-900 pb-4">
+          <div className="bg-zinc-50 p-10 sticky top-32 border border-zinc-100">
+            <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-900 mb-10 border-b border-zinc-200 pb-4 italic text-left">
               Sumar comandă
             </h2>
             
-            <div className="space-y-5 font-sans text-[13px]">
-              <div className="flex justify-between text-zinc-700 font-medium">
-                <span>Subtotal produse</span>
+            <div className="space-y-4 font-sans text-[13px] text-left">
+              <div className="flex justify-between text-zinc-500 font-medium">
+                <span className="italic">Subtotal</span>
                 <span className="font-bold text-zinc-900">{subtotal} RON</span>
               </div>
-              <div className="flex justify-between text-zinc-700 font-medium">
-                <span>{isAllDigital ? 'Taxă procesare' : 'Cost livrare'}</span>
-                <span className="font-bold text-zinc-900">
+              <div className="flex justify-between text-zinc-500 font-medium">
+                <span className="italic">{isAllDigital ? 'Procesare digitală' : 'Transport'}</span>
+                <span className="font-bold text-zinc-900 tracking-tighter">
                   {shipping === 0 ? 'GRATUIT' : `${shipping} RON`}
                 </span>
               </div>
               
               {!isAllDigital && shipping > 0 && (
-                <div className="bg-white p-4 border border-zinc-200 mt-4">
-                  <p className="text-[10px] text-zinc-800 font-bold uppercase tracking-tight">
-                    Transport gratuit?
-                  </p>
-                  <p className="text-[11px] text-zinc-500 italic mt-1 leading-relaxed">
-                    Mai adaugă produse de <span className="text-zinc-900 font-bold">{150 - subtotal} RON</span> pentru livrare gratuită.
+                <div className="bg-white/50 p-4 border border-zinc-100 mt-6 italic">
+                  <p className="text-[11px] text-zinc-400 leading-relaxed">
+                    Mai adaugă produse de <span className="text-zinc-900 font-bold italic">{(150 - subtotal)} RON</span> pentru a debloca <span className="text-zinc-900 font-bold uppercase tracking-widest text-[9px]">transport gratuit</span>.
                   </p>
                 </div>
               )}
 
-              <div className="pt-8 border-t-2 border-zinc-200 flex justify-between items-center text-2xl font-black tracking-tighter text-zinc-900">
-                <span>Total</span>
-                <span>{total} RON</span>
+              <div className="pt-8 mt-4 border-t border-zinc-200 flex justify-between items-baseline">
+                <span className="text-base font-black uppercase tracking-tighter text-zinc-900">Total</span>
+                <span className="text-3xl font-black tracking-tighter text-zinc-900 italic">{total} RON</span>
               </div>
             </div>
 
             <button 
               onClick={handleCheckout}
               disabled={isProcessing}
-              className={`w-full bg-zinc-900 text-white py-6 mt-12 flex items-center justify-center space-x-4 hover:bg-black uppercase tracking-[0.3em] font-bold text-[11px] shadow-2xl active:scale-[0.98] transition-all ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`w-full bg-zinc-900 text-white py-6 mt-12 flex items-center justify-center space-x-4 hover:bg-black uppercase tracking-[0.4em] font-bold text-[10px] shadow-2xl active:scale-[0.98] transition-all ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <span>{isProcessing ? 'Se procesează...' : 'Finalizează Comanda'}</span>
-              {!isProcessing && <ArrowRight size={18} />}
+              {!isProcessing && <ArrowRight size={16} />}
             </button>
             
-            <div className="mt-10 space-y-3 text-[10px] text-zinc-500 uppercase tracking-[0.15em] font-bold text-center">
-              <p>🛡️ Plată 100% securizată prin Stripe</p>
-              <p className="italic text-zinc-400 font-medium normal-case">Suport GPay & Apple Pay activ</p>
+            <div className="mt-10 space-y-3 text-[9px] text-zinc-400 uppercase tracking-[0.1em] font-bold text-center italic opacity-60">
+              <p>● Plată securizată prin Stripe ●</p>
             </div>
           </div>
         </div>
-
       </div>
     </main>
   );

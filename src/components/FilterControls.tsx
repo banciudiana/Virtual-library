@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { X, SlidersHorizontal, ChevronDown, Check } from 'lucide-react';
 
@@ -10,15 +10,31 @@ export default function FilterControls({
   const router = useRouter();
   const searchParams = useSearchParams();
   
+  // State pentru Drawer-ul de filtre lateral
   const [isOpen, setIsOpen] = useState(false);
+  // State pentru Dropdown-ul de sortare (Reparat pentru Mobil)
+  const [isSortOpen, setIsSortOpen] = useState(false);
   
-  // Stări locale pentru selecție multiplă și format
+  const sortRef = useRef<HTMLDivElement>(null);
+
+  // Stări locale pentru selecție
   const [tempAuthors, setTempAuthors] = useState<string[]>(
     selectedAuthor ? selectedAuthor.split(',') : []
   );
   const [tempFormat, setTempFormat] = useState(selectedFormat || "");
 
-  // Sincronizăm starea când se schimbă URL-ul (ex: la reset sau navigare)
+  // Închide dropdown-ul de sortare dacă dai click în exteriorul lui
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sortRef.current && !sortRef.current.contains(event.target as Node)) {
+        setIsSortOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Sincronizăm starea locală când se schimbă URL-ul
   useEffect(() => {
     setTempAuthors(selectedAuthor ? selectedAuthor.split(',') : []);
     setTempFormat(selectedFormat || "");
@@ -33,26 +49,21 @@ export default function FilterControls({
   const applyFilters = (newSort?: string, newMin?: number, newMax?: number) => {
     const params = new URLSearchParams(searchParams.toString());
     
-    // 1. Gestionare Preț
     if (newMin !== undefined) params.set('min', newMin.toString());
     if (newMax !== undefined) params.set('max', newMax.toString());
-    // Dacă nu trimitem prețuri noi, dar ele există deja în URL, URLSearchParams le păstrează automat
 
-    // 2. Gestionare Autori (Multi-select)
     if (tempAuthors.length > 0) {
       params.set('author', tempAuthors.join(','));
     } else {
       params.delete('author');
     }
 
-    // 3. Gestionare Format
     if (tempFormat) {
       params.set('format', tempFormat);
     } else {
       params.delete('format');
     }
 
-    // 4. Gestionare Sortare
     if (newSort !== undefined) {
       params.set('sort', newSort);
     } else if (currentSort) {
@@ -60,6 +71,7 @@ export default function FilterControls({
     }
     
     router.push(`?${params.toString()}`, { scroll: false });
+    setIsSortOpen(false); // Închidem meniul după ce selectăm o opțiune
   };
 
   const formats = [
@@ -85,47 +97,58 @@ export default function FilterControls({
   ];
 
   return (
-    <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-12 py-6 border-y border-zinc-100">
+    <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-12 py-6 border-y border-zinc-100 relative">
       
+      {/* BUTON FILTRE */}
       <button 
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] px-8 py-4 border border-zinc-900 hover:bg-zinc-900 hover:text-white transition-all shadow-sm"
+        className="flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] px-8 py-4 border border-zinc-900 hover:bg-zinc-900 hover:text-white transition-all shadow-sm"
       >
         <SlidersHorizontal size={14} /> Filtrează Colecția
       </button>
 
-      <div className="relative group">
-        <button className="flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] py-4 px-2">
-          Sortează: {sortOptions.find(o => o.val === currentSort)?.label || 'Noutăți'}
-          <ChevronDown size={14} className="group-hover:rotate-180 transition-transform" />
+      {/* DROPDOWN SORTARE (FĂRĂ HOVER - DOAR CLICK) */}
+      <div className="relative" ref={sortRef}>
+        <button 
+          onClick={() => setIsSortOpen(!isSortOpen)}
+          className="flex items-center justify-between md:justify-start w-full md:w-auto gap-4 text-[10px] font-black uppercase tracking-[0.2em] py-4 px-2 border md:border-none border-zinc-100"
+        >
+          <span>Sortează: {sortOptions.find(o => o.val === currentSort)?.label || 'Noutăți'}</span>
+          <ChevronDown size={14} className={`transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`} />
         </button>
         
-        <div className="absolute top-full right-0 w-48 bg-white border border-zinc-100 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-          {sortOptions.map((opt) => (
-            <button
-              key={opt.val}
-              onClick={() => applyFilters(opt.val)}
-              className="w-full text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-50 transition-colors border-b border-zinc-50 last:border-0"
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
+        {isSortOpen && (
+          <div className="absolute top-full right-0 w-full md:w-56 bg-white border border-zinc-100 shadow-2xl z-[60] animate-in fade-in slide-in-from-top-2 duration-200 mt-1">
+            {sortOptions.map((opt) => (
+              <button
+                key={opt.val}
+                onClick={() => applyFilters(opt.val)}
+                className={`w-full text-left px-5 py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-50 transition-colors border-b border-zinc-50 last:border-0 ${currentSort === opt.val ? 'text-zinc-900 bg-zinc-50' : 'text-zinc-400'}`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
+      {/* DRAWER FILTRE LATERAL */}
       {isOpen && (
         <div className="fixed inset-0 z-[100] flex justify-end">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
-          <div className="relative w-full max-w-md bg-white h-full shadow-2xl p-12 flex flex-col overflow-y-auto animate-in slide-in-from-right duration-500">
-            <div className="flex justify-between items-center mb-16 text-left">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setIsOpen(false)} />
+          
+          <div className="relative w-full max-w-md bg-white h-full shadow-2xl p-8 md:p-12 flex flex-col overflow-y-auto animate-in slide-in-from-right duration-500">
+            <div className="flex justify-between items-center mb-16">
               <h2 className="font-playfair text-4xl font-bold italic text-zinc-900 tracking-tighter leading-none">Filtre</h2>
-              <button onClick={() => setIsOpen(false)}><X size={28} /></button>
+              <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-zinc-50 rounded-full transition-colors">
+                <X size={28} strokeWidth={1.5} />
+              </button>
             </div>
 
             <div className="space-y-12 text-left">
-              {/* INTERVALE PREȚ */}
+              {/* PREȚ */}
               <div className="space-y-6">
-                <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-900 border-b border-zinc-100 pb-2">Interval Preț</h3>
+                <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-900 border-b border-zinc-100 pb-2 italic text-left">Interval Preț</h3>
                 <div className="flex flex-col gap-3">
                   {priceIntervals.map((interval) => {
                     const isActive = Number(min) === interval.min && Number(max) === interval.max;
@@ -133,7 +156,7 @@ export default function FilterControls({
                       <button
                         key={interval.label}
                         onClick={() => applyFilters(undefined, interval.min, interval.max)}
-                        className={`flex justify-between items-center py-2 text-xs transition-colors ${isActive ? 'text-zinc-900 font-bold' : 'text-zinc-500 hover:text-zinc-900'}`}
+                        className={`flex justify-between items-center py-2 text-xs tracking-tight transition-colors ${isActive ? 'text-zinc-900 font-bold' : 'text-zinc-500 hover:text-zinc-900'}`}
                       >
                         {interval.label}
                         {isActive && <div className="w-1.5 h-1.5 bg-zinc-900 rounded-full" />}
@@ -145,7 +168,7 @@ export default function FilterControls({
 
               {/* FORMAT */}
               <div className="space-y-6">
-                <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-900 border-b border-zinc-100 pb-2">Format</h3>
+                <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-900 border-b border-zinc-100 pb-2 italic text-left">Format</h3>
                 <div className="flex flex-wrap gap-2">
                   {formats.map(f => (
                     <button 
@@ -159,22 +182,22 @@ export default function FilterControls({
                 </div>
               </div>
 
-              {/* AUTORI (MULTI-SELECT) */}
+              {/* AUTORI */}
               <div className="space-y-6">
-                <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-900 border-b border-zinc-100 pb-2">Autori</h3>
-                <div className="flex flex-col gap-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-900 border-b border-zinc-100 pb-2 italic text-left">Autori</h3>
+                <div className="flex flex-col gap-3 max-h-60 overflow-y-auto pr-4 custom-scrollbar">
                   {authors?.map((auth: any) => {
                     const isSelected = tempAuthors.includes(auth._id);
                     return (
                       <div 
                         key={auth._id} 
                         onClick={() => toggleAuthor(auth._id)}
-                        className="flex items-center justify-between cursor-pointer group py-1"
+                        className="flex items-center justify-between cursor-pointer group py-1.5 border-b border-zinc-50 last:border-0"
                       >
                         <span className={`text-xs transition-colors ${isSelected ? 'text-zinc-900 font-bold' : 'text-zinc-500 group-hover:text-zinc-900'}`}>
                           {auth.name}
                         </span>
-                        <div className={`w-4 h-4 border flex items-center justify-center transition-all ${isSelected ? 'bg-zinc-900 border-zinc-900' : 'border-zinc-200'}`}>
+                        <div className={`w-4 h-4 border flex items-center justify-center transition-all ${isSelected ? 'bg-zinc-900 border-zinc-900' : 'border-zinc-200 group-hover:border-zinc-900'}`}>
                           {isSelected && <Check size={10} className="text-white" />}
                         </div>
                       </div>
@@ -184,19 +207,19 @@ export default function FilterControls({
               </div>
             </div>
 
-            {/* BUTOANE ACȚIUNE */}
-            <div className="mt-auto pt-10 flex flex-col gap-4">
+            {/* BUTOANE FINALE */}
+            <div className="mt-auto pt-12 flex flex-col gap-4">
               <button 
                 onClick={() => { applyFilters(); setIsOpen(false); }} 
-                className="w-full bg-zinc-900 text-white py-6 text-[11px] font-black uppercase tracking-[0.3em] hover:bg-black transition-all shadow-lg"
+                className="w-full bg-zinc-900 text-white py-6 text-[11px] font-black uppercase tracking-[0.3em] hover:bg-black transition-all shadow-xl active:scale-[0.98]"
               >
-                Aplică Filtrele
+                Aplică Selecția
               </button>
               <button 
                 onClick={() => { router.push('?'); setIsOpen(false); }} 
-                className="w-full text-zinc-400 text-[9px] font-bold uppercase tracking-[0.2em] hover:text-red-500 transition-colors"
+                className="w-full text-zinc-400 text-[9px] font-bold uppercase tracking-[0.2em] hover:text-red-500 transition-colors py-2"
               >
-                Șterge toate filtrele
+                Resetare completă
               </button>
             </div>
           </div>

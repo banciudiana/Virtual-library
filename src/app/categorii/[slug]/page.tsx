@@ -16,10 +16,8 @@ export default async function CategoryPage(props: {
   const minPrice = Number(resolvedSearchParams?.min) || 0;
   const maxPrice = Number(resolvedSearchParams?.max) || 2000;
   
-  // 1. Transformăm string-ul de autori din URL ("id1,id2") într-un Array pentru Sanity
   const selectedAuthor = resolvedSearchParams?.author || "";
   const authorsList = selectedAuthor ? selectedAuthor.split(',') : [];
-  
   const selectedFormat = resolvedSearchParams?.format || "";
 
   let orderClause = '_createdAt desc'; 
@@ -28,9 +26,13 @@ export default async function CategoryPage(props: {
   if (sort === 'title-asc') orderClause = 'title asc';
   if (sort === 'title-desc') orderClause = 'title desc';
 
-  // 2. QUERY OPTIMIZAT: Suportă selecție multiplă autori (OR logic) și Categorii Mamă
+  // QUERY: Aduce cărțile filtrate ȘI campania de reduceri activă
   const data = await client.fetch(`
     {
+      "activeSale": *[_type == "sale" && isActive == true][0] {
+        discountValue,
+        "appliedBookIds": appliedBooks[]._ref
+      },
       "currentCategory": *[_type == "category" && slug.current == $slug][0]{
         _id, title
       },
@@ -53,73 +55,93 @@ export default async function CategoryPage(props: {
     slug, 
     minPrice, 
     maxPrice, 
-    authorsList, // Pasăm array-ul de ID-uri
+    authorsList, 
     format: selectedFormat 
   });
 
+  const { books, activeSale, authors, currentCategory } = data;
+
   return (
     <main className="max-w-7xl mx-auto px-6 py-16 font-sans">
-      {/* Header Editorial - Stil Blackwell's */}
       <header className="mb-16 text-left">
         <div className="max-w-4xl">
-       
           <h1 className="font-playfair text-4xl md:text-6xl font-bold italic text-zinc-900 tracking-tighter capitalize leading-[0.9]">
-            {data.currentCategory?.title || "Toate cărțile"}
+            {currentCategory?.title || "Toate cărțile"}
           </h1>
           <div className="w-20 h-px bg-zinc-900 mt-8 opacity-20"></div>
         </div>
       </header>
 
-      {/* Controler Filtre (Client Component) */}
       <FilterControls 
         min={minPrice} 
         max={maxPrice} 
         currentSort={sort} 
-        authors={data.authors || []}
-        selectedAuthor={selectedAuthor} // Trimitem string-ul brut pentru URL sync
+        authors={authors || []}
+        selectedAuthor={selectedAuthor}
         selectedFormat={selectedFormat}
       />
 
-      {/* Grid Produse */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-20">
-        {data.books.length > 0 ? (
-          data.books.map((book: any) => (
-            <Link href={`/product/${book.slug}`} key={book._id} className="group flex flex-col h-full">
-              {/* Imagine Copertă */}
-              <div className="relative aspect-[2/3] w-full mb-8 overflow-hidden bg-zinc-50 transition-all duration-700 group-hover:shadow-2xl">
-                {book.image && (
-                  <Image 
-                    src={urlFor(book.image).url()} 
-                    alt={book.title} 
-                    fill 
-                    priority
-                    sizes="(max-width: 768px) 100vw, 25vw" 
-                    className="object-cover transition-transform duration-1000 group-hover:scale-105" 
-                  />
-                )}
-              </div>
+        {books.length > 0 ? (
+          books.map((book: any) => {
+            // Logica de reducere pentru fiecare carte
+            const isReduced = activeSale?.appliedBookIds?.includes(book._id);
+            const finalPrice = isReduced 
+              ? (book.price * (1 - activeSale.discountValue)).toFixed(2) 
+              : book.price;
+            const discountPercent = activeSale ? Math.round(activeSale.discountValue * 100) : 0;
 
-              {/* Detalii Carte */}
-              <div className="flex flex-col flex-grow text-left">
-                <h3 className="font-playfair text-xl font-bold leading-tight line-clamp-2 min-h-[3rem] text-zinc-900 group-hover:text-zinc-600 transition-colors">
-                  {book.title}
-                </h3>
-                <p className="font-sans text-zinc-500 uppercase tracking-[0.3em] text-[10px] font-bold mt-2">
-                  {book.authorName}
-                </p>
-                
-                {/* Footer Card: Preț & Format */}
-                <div className="pt-4 mt-auto border-t border-zinc-100 flex justify-between items-center">
-                  <span className="font-sans font-bold text-sm tracking-tighter text-zinc-900">
-                    {book.price} RON
-                  </span>
-                  <span className="font-sans text-[9px] uppercase tracking-widest text-zinc-400 font-bold">
-                    {book.format?.[0] || 'Fizică'}
-                  </span>
+            return (
+              <Link href={`/product/${book.slug}`} key={book._id} className="group flex flex-col h-full">
+                <div className="relative aspect-[2/3] w-full mb-8 overflow-hidden bg-zinc-50 transition-all duration-700 group-hover:shadow-2xl">
+                  
+                  {/* BADGE REDUCERE */}
+                  {isReduced && (
+                    <div className="absolute top-4 left-4 z-20 bg-red-600 text-white text-[9px] font-black px-2 py-1 uppercase tracking-widest italic shadow-xl">
+                      -{discountPercent}%
+                    </div>
+                  )}
+
+                  {book.image && (
+                    <Image 
+                      src={urlFor(book.image).url()} 
+                      alt={book.title} 
+                      fill 
+                      sizes="(max-width: 768px) 100vw, 25vw" 
+                      className="object-cover transition-transform duration-1000 group-hover:scale-105" 
+                    />
+                  )}
                 </div>
-              </div>
-            </Link>
-          ))
+
+                <div className="flex flex-col flex-grow text-left">
+                  <h3 className="font-playfair text-xl font-bold leading-tight line-clamp-2 min-h-[3rem] text-zinc-900 group-hover:text-zinc-600 transition-colors">
+                    {book.title}
+                  </h3>
+                  <p className="font-sans text-zinc-500 uppercase tracking-[0.3em] text-[10px] font-bold mt-2 italic">
+                    {book.authorName}
+                  </p>
+                  
+                  <div className="pt-4 mt-auto border-t border-zinc-100 flex justify-between items-center">
+                    {/* PREȚ DINAMIC (ROȘU DACĂ E REDUS) */}
+                    <div className="flex items-center gap-2">
+                      <span className={`font-sans font-black text-sm tracking-tighter ${isReduced ? 'text-red-600' : 'text-zinc-900'}`}>
+                        {finalPrice} RON
+                      </span>
+                      {isReduced && (
+                        <span className="text-[10px] text-zinc-300 line-through font-bold">
+                          {book.price} RON
+                        </span>
+                      )}
+                    </div>
+
+                    <span className="font-sans text-[9px] uppercase tracking-widest text-zinc-400 font-bold italic opacity-60">
+                      {Array.isArray(book.format) ? book.format[0] : (book.format || 'Fizică')}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            );
+          })
         ) : (
           <div className="col-span-full py-40 text-center">
             <p className="font-playfair text-2xl italic text-zinc-300">
