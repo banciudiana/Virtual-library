@@ -12,7 +12,7 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
   
-  const totalItems = useCartStore((state) => state.totalItems());
+  const totalItems = useCartStore((state) => state.getTotalItems());
 
   const closeMenu = () => {
     setIsOpen(false);
