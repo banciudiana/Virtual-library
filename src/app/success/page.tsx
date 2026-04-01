@@ -1,29 +1,25 @@
 'use client'
 
-import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react'; // Am adăugat Suspense
+import { useSearchParams } from 'next/navigation';
 import { useCartStore } from '@/lib/store';
 import { adminClient } from '@/sanity/lib/adminClient';
 import Link from 'next/link';
 import { CheckCircle, Loader2 } from 'lucide-react';
 
-export default function SuccessPage() {
+// 1. Mutăm toată logica aici
+function SuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
   const { cart, clearCart } = useCartStore();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
 
-  // FUNCȚIE REPARATĂ: Extrage ID-ul corect indiferent dacă e UUID sau ID simplu
   const getCleanId = (itemId: string) => {
     const formats = ['-paperback', '-hardback', '-ebook', '-audiobook'];
     let cleanId = itemId;
-    
     formats.forEach(f => {
-      if (cleanId.endsWith(f)) {
-        cleanId = cleanId.replace(f, '');
-      }
+      if (cleanId.endsWith(f)) cleanId = cleanId.replace(f, '');
     });
-    
     return cleanId;
   };
 
@@ -49,10 +45,9 @@ export default function SuccessPage() {
         const isAllDigital = cart.every(item => 
           item.format?.toLowerCase() === 'ebook' || item.format?.toLowerCase() === 'audiobook'
         );
-        const shipping = isAllDigital ? 0 : (subtotal > 150 ? 0 : 20); // Am corectat: 0 pt digital
+        const shipping = isAllDigital ? 0 : (subtotal > 150 ? 0 : 20);
         const total = subtotal + shipping;
 
-        // 3. CREĂM COMANDA (REPARAT: Adăugat referința corectă către carte)
         const orderDoc = {
           _type: 'order',
           orderNumber: `ORD-${Math.random().toString(36).toUpperCase().substring(2, 9)}`,
@@ -62,11 +57,7 @@ export default function SuccessPage() {
           status: 'Plătit',
           items: cart.map(item => ({
             _key: Math.random().toString(36).substring(2, 9),
-            // AICI ERA PROBLEMA: Trebuie să îi dăm referința book
-            book: {
-              _type: 'reference',
-              _ref: getCleanId(item._id) // Curățăm ID-ul (-ebook, etc)
-            },
+            book: { _type: 'reference', _ref: getCleanId(item._id) },
             quantity: item.quantity,
             priceAtPurchase: item.price,
             format: item.format
@@ -75,25 +66,17 @@ export default function SuccessPage() {
 
         const createdOrder = await adminClient.create(orderDoc);
 
-        // 4. Legăm comanda de profilul utilizatorului
         await adminClient
           .patch(user._id)
           .setIfMissing({ orders: [] })
           .insert('after', 'orders[-1]', [{ _type: 'reference', _ref: createdOrder._id }])
           .commit();
 
-        // 5. UPDATE STOC ȘI SALES COUNT (Top Vânzări)
         for (const item of cart) {
           const cleanId = getCleanId(item._id);
           const isPhysical = item.format === 'paperback' || item.format === 'hardback';
-          
-          // Patch de nota 20: Scădem stocul (dacă e fizic) ȘI creștem salesCount (pt toate)
           let patch = adminClient.patch(cleanId).setIfMissing({ salesCount: 0 }).inc({ salesCount: item.quantity });
-          
-          if (isPhysical) {
-            patch = patch.dec({ stock: item.quantity });
-          }
-
+          if (isPhysical) patch = patch.dec({ stock: item.quantity });
           await patch.commit();
         }
 
@@ -108,12 +91,11 @@ export default function SuccessPage() {
     finalizeTransaction();
   }, [sessionId, cart, clearCart]);
 
-  // UI-ul rămâne neschimbat (loading, error, success)
   if (status === 'loading') {
     return (
       <div className="min-h-[80vh] flex flex-col items-center justify-center space-y-4">
         <Loader2 className="animate-spin text-zinc-900" size={40} />
-        <p className="font-serif italic text-zinc-500">Confirmăm plata și pregătim comanda...</p>
+        <p className="font-serif italic text-zinc-500 text-left">Confirmăm plata și pregătim comanda...</p>
       </div>
     );
   }
@@ -121,7 +103,7 @@ export default function SuccessPage() {
   if (status === 'error') {
     return (
       <div className="min-h-[80vh] flex flex-col items-center justify-center space-y-6">
-        <h1 className="font-playfair text-3xl font-bold text-red-600">Ceva nu a mers bine</h1>
+        <h1 className="font-playfair text-3xl font-bold text-red-600 text-left">Ceva nu a mers bine</h1>
         <p className="text-zinc-500 max-w-xs text-center">Plata a fost procesată, dar am întâmpinat o eroare la salvarea comenzii.</p>
         <Link href="/" className="px-8 py-3 bg-zinc-900 text-white text-xs font-bold uppercase tracking-widest">Înapoi la magazin</Link>
       </div>
@@ -134,9 +116,9 @@ export default function SuccessPage() {
         <div className="flex justify-center text-emerald-500">
             <CheckCircle size={80} strokeWidth={1} />
         </div>
-        <div className="space-y-4">
-          <h1 className="font-playfair text-5xl font-bold tracking-tight text-zinc-900">Comandă Confirmată</h1>
-          <p className="text-zinc-500 font-serif italic text-lg max-w-md mx-auto">Mulțumim! Comanda ta a fost înregistrată, iar stocul a fost actualizat.</p>
+        <div className="space-y-4 text-center">
+          <h1 className="font-playfair text-5xl font-bold tracking-tight text-zinc-900 italic">Comandă Confirmată</h1>
+          <p className="text-zinc-500 font-serif italic text-lg max-w-md mx-auto">Mulțumim! Comanda ta a fost înregistrată, iar biblioteca ta virtuală s-a îmbogățit.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-8 font-sans">
           <Link href="/account" className="flex items-center justify-center border-2 border-zinc-900 py-5 text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-zinc-50 transition-all">Vezi Istoric Comenzi</Link>
@@ -144,5 +126,19 @@ export default function SuccessPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+// 2. Pagina principală exportată (Aici e reparația Build)
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[80vh] flex flex-col items-center justify-center space-y-4">
+        <Loader2 className="animate-spin text-zinc-900" size={40} />
+        <p className="font-serif italic text-zinc-500">Se încarcă pagina...</p>
+      </div>
+    }>
+      <SuccessContent />
+    </Suspense>
   );
 }
