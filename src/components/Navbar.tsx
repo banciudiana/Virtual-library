@@ -36,12 +36,17 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 md:h-20">
           
-          {/* LOGO */}
-          <Link href="/" onClick={closeMenu} className="font-playfair text-xl md:text-2xl font-bold tracking-tight text-zinc-900">
+          {/* LOGO - Adăugat aria-label */}
+          <Link 
+            href="/" 
+            onClick={closeMenu} 
+            className="font-playfair text-xl md:text-2xl font-bold tracking-tight text-zinc-900"
+            aria-label="VirtualLib - Pagina Principală"
+          >
             VIRTUAL<span className="text-zinc-500 font-light italic">LIB</span>
           </Link>
 
-          {/* NAV DESKTOP - ADĂUGAT HOME */}
+          {/* NAV DESKTOP */}
           <div className="hidden md:flex space-x-10 items-center text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-800 h-full">
             <Link href="/" onClick={closeMenu} className="hover:text-zinc-500 transition-colors">Home</Link>
             
@@ -68,24 +73,43 @@ export default function Navbar() {
             <Link href="/autori" onClick={closeMenu} className="hover:text-zinc-500 transition-colors">Autori</Link>
           </div>
 
-          {/* ACTIONS */}
+          {/* ACTIONS - Adăugat aria-label pe toate linkurile cu iconițe */}
           <div className="flex items-center space-x-2 md:space-x-5">
-            <Link href="/search" onClick={closeMenu} className="p-2 text-zinc-700 hover:bg-zinc-50 rounded-full transition-colors">
+            <Link 
+              href="/search" 
+              onClick={closeMenu} 
+              className="p-2 text-zinc-700 hover:bg-zinc-50 rounded-full transition-colors"
+              aria-label="Caută cărți"
+            >
               <Search size={20} strokeWidth={1.2} />
             </Link>
             
-            <Link href={mounted && localStorage.getItem('userEmail') ? "/account" : "/login"} onClick={closeMenu} className="p-2 text-zinc-700">
+            <Link 
+              href={mounted && localStorage.getItem('userEmail') ? "/account" : "/login"} 
+              onClick={closeMenu} 
+              className="p-2 text-zinc-700"
+              aria-label="Contul meu"
+            >
               <User size={20} strokeWidth={1.2} />
             </Link>
 
-            <Link href="/cart" onClick={closeMenu} className="p-2 relative text-zinc-700">
+            <Link 
+              href="/cart" 
+              onClick={closeMenu} 
+              className="p-2 relative text-zinc-700"
+              aria-label={`Coș de cumpărături, ${totalItems} produse`}
+            >
               <ShoppingBag size={20} strokeWidth={1.2} />
               {mounted && totalItems > 0 && (
                 <span className="absolute top-1 right-1 bg-black text-white text-[9px] w-3.5 h-3.5 flex items-center justify-center rounded-full font-bold">{totalItems}</span>
               )}
             </Link>
 
-            <button onClick={() => setIsOpen(!isOpen)} className="md:hidden p-2 text-zinc-600">
+            <button 
+              onClick={() => setIsOpen(!isOpen)} 
+              className="md:hidden p-2 text-zinc-600"
+              aria-label={isOpen ? "Închide meniul" : "Deschide meniul"}
+            >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
@@ -96,10 +120,19 @@ export default function Navbar() {
       {isOpen && (
         <div className="fixed inset-0 top-0 bg-white z-[60] md:hidden animate-in fade-in duration-300">
           <div className="h-16 flex justify-between items-center px-4 border-b border-zinc-50">
-            <Link href="/" onClick={closeMenu} className="font-playfair text-xl font-bold tracking-tight text-zinc-900">
+            <Link 
+              href="/" 
+              onClick={closeMenu} 
+              className="font-playfair text-xl font-bold tracking-tight text-zinc-900"
+              aria-label="VirtualLib"
+            >
               VIRTUAL<span className="text-zinc-500 font-light italic">LIB</span>
             </Link>
-            <button onClick={closeMenu} className="p-2 text-zinc-900">
+            <button 
+              onClick={closeMenu} 
+              className="p-2 text-zinc-900"
+              aria-label="Închide meniul"
+            >
               <X size={24} strokeWidth={1.5} />
             </button>
           </div>
@@ -107,13 +140,11 @@ export default function Navbar() {
           <div className="p-8 h-full flex flex-col bg-white">
             {!showCategories ? (
               <div className="flex flex-col text-zinc-900 w-full">
-                
-                {/* ADĂUGAT HOME MOBIL */}
-
                 <Link 
                   href="/search" 
                   onClick={closeMenu} 
                   className="flex items-center gap-3 py-10 border-b border-zinc-100 text-zinc-500 text-[11px] font-bold uppercase tracking-[0.3em] w-full"
+                  aria-label="Caută în site"
                 >
                   <Search size={18} strokeWidth={1.2} /> CĂUTARE
                 </Link>
@@ -125,11 +156,10 @@ export default function Navbar() {
                   HOME
                 </Link>
 
-                
-
                 <button 
                   onClick={() => setShowCategories(true)} 
                   className="w-full flex justify-between items-center py-10 border-b border-zinc-100 text-left text-[13px] font-black uppercase tracking-[0.2em]"
+                  aria-label="Vezi categoriile de cărți"
                 >
                   CATEGORII <ChevronRight size={18} strokeWidth={1.5} className="text-zinc-500" />
                 </button>
@@ -149,13 +179,13 @@ export default function Navbar() {
                 >
                   AUTORI
                 </Link>
-                
               </div>
             ) : (
               <div className="flex flex-col h-full animate-in slide-in-from-right duration-300 w-full">
                 <button 
                   onClick={() => setShowCategories(false)} 
                   className="flex items-center gap-2 text-zinc-500 uppercase tracking-[0.3em] text-[10px] font-bold mb-10"
+                  aria-label="Înapoi la meniul principal"
                 >
                   <ArrowLeft size={14}/> ÎNAPOI
                 </button>
