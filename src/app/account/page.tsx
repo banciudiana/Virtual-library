@@ -87,7 +87,7 @@ export default function AccountPage() {
             </div>
             <button 
               onClick={() => { localStorage.removeItem('userEmail'); window.location.href = '/'; }}
-              className="flex items-center gap-3 p-4 text-zinc-500 hover:text-red-500 text-[11px] font-black uppercase tracking-[0.3em] transition-all hover:bg-red-50/50 group"
+              className="flex items-center gap-3 p-4 text-zinc-500 hover:text-red-800 text-[11px] font-black uppercase tracking-[0.3em] transition-all hover:bg-red-50/50 group"
             >
               <LogOut size={16} className="group-hover:rotate-12 transition-transform" /> Ieșire Cont
             </button>

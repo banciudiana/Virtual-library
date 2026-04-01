@@ -217,7 +217,7 @@ export default function FilterControls({
               </button>
               <button 
                 onClick={() => { router.push('?'); setIsOpen(false); }} 
-                className="w-full text-zinc-500 text-[9px] font-bold uppercase tracking-[0.2em] hover:text-red-500 transition-colors py-2"
+                className="w-full text-zinc-500 text-[9px] font-bold uppercase tracking-[0.2em] hover:text-red-800 transition-colors py-2"
               >
                 Resetare completă
               </button>

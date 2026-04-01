@@ -161,7 +161,7 @@ export default function ProductDetailsClient({ book }: { book: any }) {
           disabled={favLoading}
           className={`px-6 border transition-all flex items-center justify-center ${
             isFavorite 
-            ? 'bg-red-50 border-red-100 text-red-500' 
+            ? 'bg-red-50 border-red-100 text-red-800' 
             : 'bg-zinc-50 border-zinc-100 text-zinc-500 hover:text-black hover:border-zinc-300'
           }`}
         >

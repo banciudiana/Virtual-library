@@ -34,7 +34,7 @@ export default async function HomePage() {
         <section className="py-12 md:py-20 bg-zinc-50 border-b border-zinc-100">
           <div className="max-w-7xl mx-auto px-6">
             <div className="flex flex-col mb-10 md:mb-16 text-left">
-              <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.5em] text-red-500 mb-4 italic">Limited Event</p>
+              <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.5em] text-red-800 mb-4 italic">Limited Event</p>
               <h2 className="text-4xl md:text-7xl font-playfair font-bold italic tracking-tighter text-zinc-900 leading-none">
                 {sale.title}
               </h2>
