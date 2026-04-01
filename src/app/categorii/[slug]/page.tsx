@@ -128,13 +128,13 @@ export default async function CategoryPage(props: {
                         {finalPrice} RON
                       </span>
                       {isReduced && (
-                        <span className="text-[10px] text-zinc-300 line-through font-bold">
+                        <span className="text-[10px] text-zinc-500 line-through font-bold">
                           {book.price} RON
                         </span>
                       )}
                     </div>
 
-                    <span className="font-sans text-[9px] uppercase tracking-widest text-zinc-400 font-bold italic opacity-60">
+                    <span className="font-sans text-[9px] uppercase tracking-widest text-zinc-500 font-bold italic opacity-60">
                       {Array.isArray(book.format) ? book.format[0] : (book.format || 'Fizică')}
                     </span>
                   </div>
@@ -144,7 +144,7 @@ export default async function CategoryPage(props: {
           })
         ) : (
           <div className="col-span-full py-40 text-center">
-            <p className="font-playfair text-2xl italic text-zinc-300">
+            <p className="font-playfair text-2xl italic text-zinc-500">
               Nicio carte nu se potrivește filtrelor selectate...
             </p>
           </div>

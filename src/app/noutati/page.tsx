@@ -65,7 +65,7 @@ export default async function NoutatiPage() {
                 <span className="font-sans font-bold text-sm tracking-tighter text-zinc-900">
                   {book.price} RON
                 </span>
-                <span className="font-sans text-[9px] uppercase tracking-widest text-zinc-400 font-bold">
+                <span className="font-sans text-[9px] uppercase tracking-widest text-zinc-500 font-bold">
                   {book.format?.[0] || 'Fizică'}
                 </span>
               </div>

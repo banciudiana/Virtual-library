@@ -93,7 +93,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               </div>
             )}
             <div className="max-w-3xl">
-               <p className="font-sans text-[9px] font-bold uppercase tracking-[0.3em] text-zinc-400 mb-3">Despre autor</p>
+               <p className="font-sans text-[9px] font-bold uppercase tracking-[0.3em] text-zinc-500 mb-3">Despre autor</p>
                <h4 className="font-playfair text-2xl font-bold mb-4 italic">{book.authorName}</h4>
                <p className="font-sans text-sm text-zinc-500 leading-relaxed italic">{book.authorShortBio}</p>
                <Link href={`/autori/${book.authorSlug}`} className="inline-block mt-6 text-[9px] font-bold uppercase tracking-widest border-b border-zinc-200 hover:text-black transition-all">Vezi profil complet</Link>
@@ -102,11 +102,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         <div className="max-w-4xl text-left">
           <h3 className="text-[10px] font-bold font-sans uppercase tracking-[0.4em] text-zinc-900 mb-12 opacity-80">Rezumat Detaliat</h3>
           <div className="prose prose-zinc prose-lg max-w-none font-sans leading-relaxed text-zinc-600">
-            {book.longDescription ? <PortableText value={book.longDescription} /> : <p className="italic text-zinc-400">Descrierea urmează să fie actualizată.</p>}
+            {book.longDescription ? <PortableText value={book.longDescription} /> : <p className="italic text-zinc-500">Descrierea urmează să fie actualizată.</p>}
           </div>
         </div>
         
-        <div className="mt-32 pt-12 border-t border-zinc-100 text-[9px] text-zinc-400 uppercase tracking-[0.3em] space-y-4 font-sans font-bold text-center">
+        <div className="mt-32 pt-12 border-t border-zinc-100 text-[9px] text-zinc-500 uppercase tracking-[0.3em] space-y-4 font-sans font-bold text-center">
           <p className="flex items-center justify-center gap-3">● Livrare gratuită peste 150 RON</p>
           <p className="flex items-center justify-center gap-3">● Livrare în 24-48h lucrătoare</p>
         </div>

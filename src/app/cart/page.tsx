@@ -70,7 +70,7 @@ export default function CartPage() {
             <ShoppingBag size={48} strokeWidth={1} />
           </div>
           <h1 className="font-playfair text-4xl font-bold text-zinc-900 italic">Coșul tău este gol</h1>
-          <p className="text-zinc-400 font-medium italic max-w-xs mx-auto">
+          <p className="text-zinc-500 font-medium italic max-w-xs mx-auto">
             Biblioteca ta personală așteaptă prima poveste.
           </p>
           <Link 
@@ -88,14 +88,14 @@ export default function CartPage() {
     <main className="max-w-7xl mx-auto px-6 py-12 md:py-20 font-sans">
       <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
         <div className="text-left">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 mb-2 italic text-left">Your Selection</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-2 italic text-left">Your Selection</p>
           <h1 className="font-playfair text-5xl md:text-6xl font-bold tracking-tighter text-zinc-900 italic text-left">
             Coș de cumpărături
           </h1>
         </div>
         <button 
           onClick={clearCart}
-          className="text-[9px] uppercase tracking-widest text-zinc-300 hover:text-red-600 font-bold transition-colors pb-2"
+          className="text-[9px] uppercase tracking-widest text-zinc-500 hover:text-red-600 font-bold transition-colors pb-2"
         >
           Golește tot coșul
         </button>
@@ -123,7 +123,7 @@ export default function CartPage() {
                 <h3 className="font-playfair text-2xl font-bold text-zinc-900 leading-tight">
                   {item.title}
                 </h3>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-400 font-black italic">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-black italic">
                   Format: <span className="text-zinc-900">{item.format}</span>
                 </p>
                 <p className="text-base font-black text-zinc-900 pt-3 italic">{item.price} RON</p>
@@ -182,7 +182,7 @@ export default function CartPage() {
               
               {!isAllDigital && shipping > 0 && (
                 <div className="bg-white/50 p-4 border border-zinc-100 mt-6 italic">
-                  <p className="text-[11px] text-zinc-400 leading-relaxed">
+                  <p className="text-[11px] text-zinc-500 leading-relaxed">
                     Mai adaugă produse de <span className="text-zinc-900 font-bold italic">{(150 - subtotal)} RON</span> pentru a debloca <span className="text-zinc-900 font-bold uppercase tracking-widest text-[9px]">transport gratuit</span>.
                   </p>
                 </div>
@@ -203,7 +203,7 @@ export default function CartPage() {
               {!isProcessing && <ArrowRight size={16} />}
             </button>
             
-            <div className="mt-10 space-y-3 text-[9px] text-zinc-400 uppercase tracking-[0.1em] font-bold text-center italic opacity-60">
+            <div className="mt-10 space-y-3 text-[9px] text-zinc-500 uppercase tracking-[0.1em] font-bold text-center italic opacity-60">
               <p>● Plată securizată prin Stripe ●</p>
             </div>
           </div>

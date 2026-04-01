@@ -70,14 +70,14 @@ export default function AccountPage() {
               {user?.image ? (
                 <Image src={urlFor(user.image).url()} alt={user.name} fill className="object-cover" />
               ) : (
-                <div className="flex items-center justify-center h-full text-zinc-300 font-bold text-2xl uppercase font-playfair">
+                <div className="flex items-center justify-center h-full text-zinc-500 font-bold text-2xl uppercase font-playfair">
                   {user?.name?.charAt(0)}
                 </div>
               )}
             </div>
             <div className="overflow-hidden">
               <h1 className="font-playfair text-3xl font-bold truncate">{user?.name || 'Utilizator'}</h1>
-              <p className="text-[10px] uppercase tracking-widest text-zinc-400 font-black mt-1 truncate">{user?.email}</p>
+              <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-black mt-1 truncate">{user?.email}</p>
             </div>
           </div>
 
@@ -87,7 +87,7 @@ export default function AccountPage() {
             </div>
             <button 
               onClick={() => { localStorage.removeItem('userEmail'); window.location.href = '/'; }}
-              className="flex items-center gap-3 p-4 text-zinc-400 hover:text-red-500 text-[11px] font-black uppercase tracking-[0.3em] transition-all hover:bg-red-50/50 group"
+              className="flex items-center gap-3 p-4 text-zinc-500 hover:text-red-500 text-[11px] font-black uppercase tracking-[0.3em] transition-all hover:bg-red-50/50 group"
             >
               <LogOut size={16} className="group-hover:rotate-12 transition-transform" /> Ieșire Cont
             </button>
@@ -101,7 +101,7 @@ export default function AccountPage() {
           <section>
             <div className="flex items-baseline gap-4 mb-10 border-b border-zinc-50 pb-4">
               <h2 className="font-playfair text-3xl font-bold italic tracking-tighter">Favorite</h2>
-              <span className="text-[10px] uppercase font-black tracking-widest text-zinc-300">{user?.favorites?.length || 0} titluri</span>
+              <span className="text-[10px] uppercase font-black tracking-widest text-zinc-500">{user?.favorites?.length || 0} titluri</span>
             </div>
             
             {user?.favorites?.length > 0 ? (
@@ -113,13 +113,13 @@ export default function AccountPage() {
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
                     </div>
                     <h3 className="font-playfair text-base font-bold text-zinc-900 line-clamp-1 group-hover:text-zinc-600 transition-colors">{book.title}</h3>
-                    <p className="text-zinc-400 text-[11px] font-black uppercase tracking-widest mt-1">{book.price} RON</p>
+                    <p className="text-zinc-500 text-[11px] font-black uppercase tracking-widest mt-1">{book.price} RON</p>
                   </Link>
                 ))}
               </div>
             ) : (
               <div className="py-12 px-8 border-2 border-dashed border-zinc-50 text-center">
-                <p className="text-zinc-400 text-sm italic font-serif">Nu ai adăugat încă nicio carte la lista de dorințe.</p>
+                <p className="text-zinc-500 text-sm italic font-serif">Nu ai adăugat încă nicio carte la lista de dorințe.</p>
               </div>
             )}
           </section>
@@ -128,7 +128,7 @@ export default function AccountPage() {
           <section>
             <div className="flex items-baseline gap-4 mb-10 border-b border-zinc-50 pb-4">
               <h2 className="font-playfair text-3xl font-bold italic tracking-tighter">Comenzi</h2>
-              <span className="text-[10px] uppercase font-black tracking-widest text-zinc-300">{orders.length} înregistrate</span>
+              <span className="text-[10px] uppercase font-black tracking-widest text-zinc-500">{orders.length} înregistrate</span>
             </div>
 
             <div className="space-y-6">
@@ -141,7 +141,7 @@ export default function AccountPage() {
                   >
                     <div className="border border-zinc-100 p-8 flex flex-col md:flex-row justify-between items-center gap-8 hover:border-zinc-900 transition-all duration-500 bg-white hover:shadow-xl hover:-translate-y-1">
                       <div className="space-y-1 text-center md:text-left">
-                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-300 group-hover:text-zinc-900 transition-colors">
+                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 group-hover:text-zinc-900 transition-colors">
                           #{order.orderNumber}
                         </p>
                         <p className="text-sm font-bold text-zinc-900 font-playfair italic">
@@ -159,7 +159,7 @@ export default function AccountPage() {
 
                       <div className="flex items-center gap-8">
                         <div className="text-right">
-                          <p className="text-xs text-zinc-400 font-black uppercase tracking-widest mb-1">Suma Totală</p>
+                          <p className="text-xs text-zinc-500 font-black uppercase tracking-widest mb-1">Suma Totală</p>
                           <p className="text-xl font-black text-zinc-900 tracking-tighter italic">{order.totalAmount} <span className="text-xs font-normal">RON</span></p>
                         </div>
                         <ChevronRight size={18} className="text-zinc-200 group-hover:text-black group-hover:translate-x-2 transition-all duration-300" />
@@ -169,7 +169,7 @@ export default function AccountPage() {
                 ))
               ) : (
                 <div className="py-20 bg-zinc-50/50 text-center">
-                   <p className="text-zinc-400 text-sm italic font-serif">Nu am găsit nicio comandă asociată acestui cont.</p>
+                   <p className="text-zinc-500 text-sm italic font-serif">Nu am găsit nicio comandă asociată acestui cont.</p>
                    <Link href="/" className="inline-block mt-6 text-[10px] font-black uppercase tracking-widest border-b-2 border-black pb-1 hover:text-zinc-500 hover:border-zinc-300 transition-all">Începe Cumpărăturile</Link>
                 </div>
               )}

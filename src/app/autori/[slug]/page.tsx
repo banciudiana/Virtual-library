@@ -31,7 +31,7 @@ export default async function AuthorPage({ params }: { params: Promise<{ slug: s
 
   if (!author) {
     return (
-      <div className="p-20 text-center font-playfair italic uppercase tracking-widest text-[10px] text-zinc-400">
+      <div className="p-20 text-center font-playfair italic uppercase tracking-widest text-[10px] text-zinc-500">
         Autorul nu a fost găsit în bibliotecă.
       </div>
     );
@@ -43,7 +43,7 @@ export default async function AuthorPage({ params }: { params: Promise<{ slug: s
       {/* Navigare Înapoi */}
       <Link 
         href="/" 
-        className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-zinc-400 hover:text-black transition-colors mb-16 group font-bold"
+        className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-zinc-500 hover:text-black transition-colors mb-16 group font-bold"
       >
         <ArrowLeft size={14} className="transition-transform group-hover:-translate-x-1" />
         Înapoi
@@ -67,7 +67,7 @@ export default async function AuthorPage({ params }: { params: Promise<{ slug: s
         )}
 
         <div className="flex-grow max-w-2xl">
-          <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-300 mb-4 font-sans">
+          <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-500 mb-4 font-sans">
             Profil Literar
           </p>
           <h1 className="font-playfair text-5xl md:text-7xl font-bold leading-tight mb-8 tracking-tighter text-zinc-900">
@@ -88,7 +88,7 @@ export default async function AuthorPage({ params }: { params: Promise<{ slug: s
       <div className="text-left">
         <div className="flex items-center justify-between mb-16 border-b border-zinc-50 pb-6">
            <h2 className="font-playfair text-3xl font-bold text-zinc-900 tracking-tight">
-             Titluri disponibile <span className="text-zinc-300 font-light italic ml-2">({books.length})</span>
+             Titluri disponibile <span className="text-zinc-500 font-light italic ml-2">({books.length})</span>
            </h2>
            <BookOpen size={20} className="text-zinc-200" strokeWidth={1} />
         </div>
@@ -113,7 +113,7 @@ export default async function AuthorPage({ params }: { params: Promise<{ slug: s
                   {book.title}
                 </h3>
                 
-                <p className="font-sans text-xs text-zinc-400 mt-2 font-medium uppercase tracking-widest">
+                <p className="font-sans text-xs text-zinc-500 mt-2 font-medium uppercase tracking-widest">
                   {author.name}
                 </p>
 
@@ -121,7 +121,7 @@ export default async function AuthorPage({ params }: { params: Promise<{ slug: s
                   <span className="font-sans font-bold text-sm text-zinc-900">
                     {book.price} RON
                   </span>
-                  <span className="font-sans text-[8px] uppercase tracking-[0.2em] text-zinc-300 font-bold">
+                  <span className="font-sans text-[8px] uppercase tracking-[0.2em] text-zinc-500 font-bold">
                     {book.format?.[0] || 'Standard'}
                   </span>
                 </div>

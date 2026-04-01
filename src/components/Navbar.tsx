@@ -131,7 +131,7 @@ export default function Navbar() {
                   onClick={() => setShowCategories(true)} 
                   className="w-full flex justify-between items-center py-10 border-b border-zinc-100 text-left text-[13px] font-black uppercase tracking-[0.2em]"
                 >
-                  CATEGORII <ChevronRight size={18} strokeWidth={1.5} className="text-zinc-300" />
+                  CATEGORII <ChevronRight size={18} strokeWidth={1.5} className="text-zinc-500" />
                 </button>
 
                 <Link 
@@ -155,7 +155,7 @@ export default function Navbar() {
               <div className="flex flex-col h-full animate-in slide-in-from-right duration-300 w-full">
                 <button 
                   onClick={() => setShowCategories(false)} 
-                  className="flex items-center gap-2 text-zinc-400 uppercase tracking-[0.3em] text-[10px] font-bold mb-10"
+                  className="flex items-center gap-2 text-zinc-500 uppercase tracking-[0.3em] text-[10px] font-bold mb-10"
                 >
                   <ArrowLeft size={14}/> ÎNAPOI
                 </button>

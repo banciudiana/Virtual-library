@@ -17,11 +17,11 @@ export default async function SearchPage() {
   return (
     <main className="max-w-7xl mx-auto px-6 py-16 md:py-24 font-sans">
       <header className="mb-16 text-left">
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 mb-4 italic">
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-4 italic">
           Căutare în Bibliotecă
         </p>
         <h1 className="text-5xl md:text-7xl font-playfair font-bold italic tracking-tighter text-zinc-900 leading-none">
-          Găsește <span className="font-light text-zinc-300 italic">Inspirație</span>
+          Găsește <span className="font-light text-zinc-500 italic">Inspirație</span>
         </h1>
       </header>
 

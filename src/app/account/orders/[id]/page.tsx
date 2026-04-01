@@ -60,40 +60,40 @@ export default function OrderDetailPage() {
 
   if (!order) return (
     <div className="p-20 text-center space-y-6">
-      <p className="uppercase tracking-[0.3em] text-[10px] font-bold text-zinc-400">Comanda nu a fost găsită.</p>
+      <p className="uppercase tracking-[0.3em] text-[10px] font-bold text-zinc-500">Comanda nu a fost găsită.</p>
       <Link href="/account" className="inline-block border-b border-black pb-1 text-xs font-bold uppercase tracking-widest">Înapoi la cont</Link>
     </div>
   )
 
   return (
     <main className="max-w-4xl mx-auto px-6 py-16 font-sans">
-      <Link href="/account" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-zinc-400 hover:text-black transition-colors mb-12 font-bold group">
+      <Link href="/account" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-zinc-500 hover:text-black transition-colors mb-12 font-bold group">
         <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> Înapoi la cont
       </Link>
 
       <div className="border-b border-zinc-100 pb-12 mb-12 text-left">
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 mb-2 italic">Rezumat Comandă</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-2 italic">Rezumat Comandă</p>
         <h1 className="font-playfair text-4xl md:text-5xl font-bold text-zinc-900 mb-8 italic tracking-tighter">
           #{order.orderNumber}
         </h1>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div>
-            <p className="text-[9px] uppercase tracking-widest text-zinc-400 font-bold mb-1">Data</p>
+            <p className="text-[9px] uppercase tracking-widest text-zinc-500 font-bold mb-1">Data</p>
             <p className="text-sm font-bold text-zinc-800">{new Date(order.orderDate).toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
           </div>
           <div>
-            <p className="text-[9px] uppercase tracking-widest text-zinc-400 font-bold mb-1">Status</p>
+            <p className="text-[9px] uppercase tracking-widest text-zinc-500 font-bold mb-1">Status</p>
             <span className="inline-block text-[9px] font-black uppercase px-2 py-1 bg-zinc-900 text-white tracking-widest">
               {order.status}
             </span>
           </div>
           <div>
-            <p className="text-[9px] uppercase tracking-widest text-zinc-400 font-bold mb-1">Metodă Plată</p>
+            <p className="text-[9px] uppercase tracking-widest text-zinc-500 font-bold mb-1">Metodă Plată</p>
             <p className="text-sm font-bold text-zinc-800 italic font-playfair">Card Online</p>
           </div>
           <div>
-            <p className="text-[9px] uppercase tracking-widest text-zinc-400 font-bold mb-1">Total</p>
+            <p className="text-[9px] uppercase tracking-widest text-zinc-500 font-bold mb-1">Total</p>
             <p className="text-sm font-black text-zinc-900">{order.totalAmount} RON</p>
           </div>
         </div>
@@ -110,10 +110,10 @@ export default function OrderDetailPage() {
                     {item.bookData.title}
                   </Link>
                 ) : (
-                  <span className="font-playfair text-xl font-bold text-zinc-300 italic">Produs indisponibil</span>
+                  <span className="font-playfair text-xl font-bold text-zinc-500 italic">Produs indisponibil</span>
                 )}
                 
-                <div className="flex items-center gap-4 text-[9px] uppercase tracking-[0.2em] text-zinc-400 font-bold italic">
+                <div className="flex items-center gap-4 text-[9px] uppercase tracking-[0.2em] text-zinc-500 font-bold italic">
                   <span>Format: {item.format || 'Fizic'}</span>
                   <span className="w-1.5 h-1.5 bg-zinc-100 rounded-full"></span>
                   <span>Cantitate: {item.quantity}</span>
@@ -136,7 +136,7 @@ export default function OrderDetailPage() {
         <div className="flex justify-between items-center border-t border-zinc-200 pt-8">
           <div>
             <span className="font-black uppercase tracking-[0.3em] text-[10px] text-zinc-900 block mb-1">Suma Totală</span>
-            <span className="text-[9px] text-zinc-400 uppercase tracking-widest font-bold">TVA inclus</span>
+            <span className="text-[9px] text-zinc-500 uppercase tracking-widest font-bold">TVA inclus</span>
           </div>
           <span className="font-black text-3xl text-zinc-900 tracking-tighter italic">{order.totalAmount} RON</span>
         </div>

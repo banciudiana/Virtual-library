@@ -78,7 +78,7 @@ export default function ProductDetailsClient({ book }: { book: any }) {
   return (
     <div className="flex flex-col justify-center">
       <Link href={`/autori/${book.authorSlug}`} className="block mb-4">
-        <p className="font-sans text-zinc-400 uppercase tracking-[0.4em] text-[10px] font-bold hover:text-black transition-colors">
+        <p className="font-sans text-zinc-500 uppercase tracking-[0.4em] text-[10px] font-bold hover:text-black transition-colors">
           {book.authorName}
         </p>
       </Link>
@@ -91,7 +91,7 @@ export default function ProductDetailsClient({ book }: { book: any }) {
         <span className="text-4xl font-sans font-bold tracking-tighter text-zinc-900">
           {currentPrice} RON
         </span>
-        <div className="flex items-center gap-2 text-zinc-400 border-l border-zinc-200 pl-8 font-sans">
+        <div className="flex items-center gap-2 text-zinc-500 border-l border-zinc-200 pl-8 font-sans">
           <Star size={16} className="text-yellow-500" fill="currentColor" />
           <span className="text-sm font-bold text-zinc-800">{book.rating || '5.0'}</span>
         </div>
@@ -116,7 +116,7 @@ export default function ProductDetailsClient({ book }: { book: any }) {
       )}
 
       <div className="mb-10">
-        <h3 className="text-[9px] font-bold font-sans uppercase tracking-[0.2em] text-zinc-300 mb-4">
+        <h3 className="text-[9px] font-bold font-sans uppercase tracking-[0.2em] text-zinc-500 mb-4">
           Selectează Formatul (Obligatoriu)
         </h3>
         <div className="flex flex-wrap gap-2">
@@ -127,7 +127,7 @@ export default function ProductDetailsClient({ book }: { book: any }) {
               className={`border px-6 py-2 text-[10px] font-sans font-bold uppercase tracking-widest transition-all
                 ${selectedFormat === fmt 
                   ? 'border-black bg-black text-white shadow-md' 
-                  : 'border-zinc-200 text-zinc-400 hover:border-zinc-400'
+                  : 'border-zinc-200 text-zinc-500 hover:border-zinc-400'
                 }`}
             >
               {fmt}
@@ -162,7 +162,7 @@ export default function ProductDetailsClient({ book }: { book: any }) {
           className={`px-6 border transition-all flex items-center justify-center ${
             isFavorite 
             ? 'bg-red-50 border-red-100 text-red-500' 
-            : 'bg-zinc-50 border-zinc-100 text-zinc-400 hover:text-black hover:border-zinc-300'
+            : 'bg-zinc-50 border-zinc-100 text-zinc-500 hover:text-black hover:border-zinc-300'
           }`}
         >
           {favLoading ? (
@@ -183,7 +183,7 @@ export default function ProductDetailsClient({ book }: { book: any }) {
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white w-full max-w-md p-8 shadow-2xl relative animate-in zoom-in-95 duration-300">
-            <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-zinc-400 hover:text-black transition">
+            <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-zinc-500 hover:text-black transition">
               <X size={20} />
             </button>
             <div className="text-center">

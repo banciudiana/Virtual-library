@@ -88,7 +88,7 @@ export default function LoginPage() {
           <div className="space-y-4">
             {step === 1 ? (
               <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-zinc-900 transition-colors" size={18} />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-zinc-900 transition-colors" size={18} />
                 <input
                   type="email"
                   required
@@ -129,7 +129,7 @@ export default function LoginPage() {
         {step === 2 && (
           <button 
             onClick={() => setStep(1)}
-            className="w-full text-[10px] uppercase tracking-widest text-zinc-400 font-bold hover:text-zinc-900 transition-colors"
+            className="w-full text-[10px] uppercase tracking-widest text-zinc-500 font-bold hover:text-zinc-900 transition-colors"
           >
             Folosește alt email
           </button>

@@ -54,7 +54,7 @@ export default function AuthorsPage() {
   if (!mounted) return null;
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center font-playfair italic text-zinc-400 tracking-widest text-[10px] uppercase">
+    <div className="min-h-screen flex items-center justify-center font-playfair italic text-zinc-500 tracking-widest text-[10px] uppercase">
       Explorăm arhivele...
     </div>
   );
@@ -65,7 +65,7 @@ export default function AuthorsPage() {
       {/* Navigare - Consistentă cu pagina de profil */}
       <Link 
         href="/" 
-        className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-zinc-400 hover:text-black transition-colors mb-16 group font-bold"
+        className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-zinc-500 hover:text-black transition-colors mb-16 group font-bold"
       >
         <ArrowLeft size={14} className="transition-transform group-hover:-translate-x-1" />
         Acasă
@@ -74,7 +74,7 @@ export default function AuthorsPage() {
       {/* Header & Sortare */}
       <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8 border-b border-zinc-50 pb-12">
         <div className="max-w-2xl text-left">
-          <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-300 mb-4">
+          <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-500 mb-4">
             Comunitatea Noastră
           </p>
           <h1 className="font-playfair text-5xl md:text-7xl font-bold leading-tight tracking-tighter text-zinc-900">
@@ -86,7 +86,7 @@ export default function AuthorsPage() {
           onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
           className="flex items-center gap-4 px-8 py-4 border border-zinc-100 hover:border-black transition-all text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-900 shadow-sm"
         >
-          <ArrowUpDown size={14} className="text-zinc-400" />
+          <ArrowUpDown size={14} className="text-zinc-500" />
           <span>Sortare: {sortOrder === 'asc' ? 'A — Z' : 'Z — A'}</span>
         </button>
       </div>
@@ -117,7 +117,7 @@ export default function AuthorsPage() {
             </div>
 
             <div className="space-y-3">
-              <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-zinc-300">
+              <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-zinc-500">
                 {author.bookCount} {author.bookCount === 1 ? 'Titlu' : 'Titluri'}
               </p>
               <h2 className="font-playfair text-3xl font-bold text-zinc-900 transition-colors group-hover:text-zinc-500">

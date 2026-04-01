@@ -123,7 +123,7 @@ export default function FilterControls({
               <button
                 key={opt.val}
                 onClick={() => applyFilters(opt.val)}
-                className={`w-full text-left px-5 py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-50 transition-colors border-b border-zinc-50 last:border-0 ${currentSort === opt.val ? 'text-zinc-900 bg-zinc-50' : 'text-zinc-400'}`}
+                className={`w-full text-left px-5 py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-50 transition-colors border-b border-zinc-50 last:border-0 ${currentSort === opt.val ? 'text-zinc-900 bg-zinc-50' : 'text-zinc-500'}`}
               >
                 {opt.label}
               </button>
@@ -174,7 +174,7 @@ export default function FilterControls({
                     <button 
                       key={f.val} 
                       onClick={() => setTempFormat(tempFormat === f.val ? "" : f.val)} 
-                      className={`px-4 py-2 text-[10px] font-bold uppercase border transition-all ${tempFormat === f.val ? 'bg-zinc-900 text-white border-zinc-900' : 'border-zinc-200 text-zinc-400 hover:border-zinc-900'}`}
+                      className={`px-4 py-2 text-[10px] font-bold uppercase border transition-all ${tempFormat === f.val ? 'bg-zinc-900 text-white border-zinc-900' : 'border-zinc-200 text-zinc-500 hover:border-zinc-900'}`}
                     >
                       {f.label}
                     </button>
@@ -217,7 +217,7 @@ export default function FilterControls({
               </button>
               <button 
                 onClick={() => { router.push('?'); setIsOpen(false); }} 
-                className="w-full text-zinc-400 text-[9px] font-bold uppercase tracking-[0.2em] hover:text-red-500 transition-colors py-2"
+                className="w-full text-zinc-500 text-[9px] font-bold uppercase tracking-[0.2em] hover:text-red-500 transition-colors py-2"
               >
                 Resetare completă
               </button>
